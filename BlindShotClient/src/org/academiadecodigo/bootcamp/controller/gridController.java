@@ -9,7 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import org.academiadecodigo.bootcamp.utils.Navigation;
+import org.academiadecodigo.bootcamp.Main;
 
 import java.io.*;
 import java.net.Socket;
@@ -26,11 +26,16 @@ public class gridController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        GridPane.setColumnIndex(circle,1);
+        GridPane.setColumnIndex(circle, 1);
         GridPane.setRowIndex(circle, 0);
+
     }
 
     public void move() {
+
+    }
+
+    /*public void move() {
 
         if (Navigation.getInstance().getTurn() == 1) {
             System.out.println("Wait your turn!");
@@ -110,4 +115,6 @@ public class gridController implements Initializable {
             grid.add(circle, GridPane.getColumnIndex(circle), GridPane.getRowIndex(circle) + 1);
         }
     }
+
+    */
 }

@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.academiadecodigo.bootcamp.Main;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,7 +33,9 @@ public class Navigation {
     }
 
     public void loadScreen(String view){
+
         try {
+
             FXMLLoader fxmlLoader;
             fxmlLoader = new FXMLLoader(getClass().getResource(VIEW_PATH + "/" + view + ".fxml"));
             Parent root = fxmlLoader.load();
@@ -84,6 +87,9 @@ public class Navigation {
 
         // show the stage to reload
         stage.show();
+
+
+
     }
 
     public Initializable getController(String view) {

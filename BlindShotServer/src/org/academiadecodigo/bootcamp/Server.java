@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -12,18 +13,24 @@ import java.util.Scanner;
 public class Server {
 
     private ServerSocket socket;
-    private LinkedList<Socket> clients;
+    private Map<Integer, Socket> clients;
     private String message;
 
-    public Server(LinkedList<Socket> clients) {
+    public Server(Map<Integer, Socket> clients) {
         this.clients = clients;
 
     }
 
     public void acceptClient(int players) throws IOException {
+
+        int i = 0;
+
         while (clients.size() < players) {
 
-            clients.add(socket.accept());
+            clients.put(i, socket.accept());
+            System.out.println(clients);
+            i++;
+
         }
     }
 
@@ -33,31 +40,64 @@ public class Server {
 
     public void messageHandle() throws IOException {
 
-        write();
-        read();
+        int i = 0;
+
+
+        while (i < clients.size()) {
+
+            read(i);
+
+            //Insert GameLogicHere
+            write(i);
+
+            if (i  == (clients.size()-1)) {
+                i = 0;
+                continue;
+            }
+
+            i++;
+
+        }
     }
 
-    private void write() throws IOException {
+    private void write(int i) throws IOException {
 
-        BufferedWriter bwriter = new BufferedWriter(new OutputStreamWriter(clients.get(0).getOutputStream()));
+        BufferedWriter bwriter;
 
-        Scanner scanner  = new Scanner(System.in);
+        for (int j = 0; j < clients.size(); j++) {
+            if (j == i) {
+                continue;
+            }
 
-        message = scanner.nextLine();
+            bwriter = new BufferedWriter(new OutputStreamWriter(clients.get(j).getOutputStream()));
 
-        message += "\n";
+            //Scanner scanner  = new Scanner(System.in);
 
-        bwriter.write(message);
+            //message = scanner.nextLine();
 
-        bwriter.flush();
+            //message += "\n";
+
+            bwriter.write(message);
+
+            bwriter.flush();
+
+        }
 
     }
 
-    private void read() throws IOException {
+    private void read(int i) throws IOException {
 
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(clients.get(0).getInputStream()));
+        System.out.println(i);
 
-        System.out.println(bReader.readLine());
+        BufferedReader bReader = new BufferedReader(new InputStreamReader(clients.get(i).getInputStream()));
+
+        message = bReader.readLine() + "\n";
+
+        System.out.println(message);
+
+        //BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clients.get(i).getOutputStream()));
+
+        //out.write(message);
 
     }
 

@@ -13,6 +13,7 @@ public class Client {
     private final String host = "localhost";
     Socket socket;
 
+
     public void connect() throws IOException {
 
         socket = new Socket(host, port);
