@@ -25,10 +25,16 @@ public class gridController implements Initializable {
     @FXML
     private Circle circle;
 
+    private Socket clientSocket;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         GridPane.setColumnIndex(circle,1);
         GridPane.setRowIndex(circle, 0);
+    }
+
+    public void setClientSocket(Socket clientSocket) {
+        this.clientSocket = clientSocket;
     }
 
     public void move() {
@@ -39,8 +45,11 @@ public class gridController implements Initializable {
                 switch (event.getCode()) {
                     case DOWN:
                         if (GridPane.getRowIndex(circle) != grid.getColumnConstraints().size()-1) {
+
                             grid.getChildren().remove(circle);
                             grid.add(circle, GridPane.getColumnIndex(circle), GridPane.getRowIndex(circle) + 1);
+                            
+
                         }
                         else {
                             System.out.println("Can't move that way!");
@@ -48,8 +57,10 @@ public class gridController implements Initializable {
                         break;
                     case UP:
                         if (GridPane.getRowIndex(circle) != 0) {
+
                             grid.getChildren().remove(circle);
                             grid.add(circle, GridPane.getColumnIndex(circle), GridPane.getRowIndex(circle) - 1);
+
                         }
                         else {
                             System.out.println("Can't move that way!");
@@ -57,8 +68,10 @@ public class gridController implements Initializable {
                         break;
                     case LEFT:
                         if (GridPane.getColumnIndex(circle) != 0) {
+
                             grid.getChildren().remove(circle);
                             grid.add(circle, GridPane.getColumnIndex(circle) - 1, GridPane.getRowIndex(circle));
+
                         }
                         else {
                             System.out.println("Can't move that way!");
@@ -66,8 +79,10 @@ public class gridController implements Initializable {
                         break;
                     case RIGHT:
                         if (GridPane.getColumnIndex(circle) != grid.getColumnConstraints().size()-1) {
+
                             grid.getChildren().remove(circle);
                             grid.add(circle, GridPane.getColumnIndex(circle) + 1, GridPane.getRowIndex(circle));
+
                         }
                         else {
                             System.out.println("Can't move that way!");
@@ -77,5 +92,4 @@ public class gridController implements Initializable {
             }
         });
     }
-
 }

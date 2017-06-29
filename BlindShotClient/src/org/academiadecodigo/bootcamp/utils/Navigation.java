@@ -56,7 +56,10 @@ public final class Navigation {
 
         try {
 
+            FXMLLoader fxmlLoader = FXMLLoader.load(getClass().getResource("../view/grid.fxml"));
+
             GridPane root = FXMLLoader.load(getClass().getResource("../view/grid.fxml"));
+
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
 

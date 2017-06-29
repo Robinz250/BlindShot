@@ -17,6 +17,7 @@ public class Server {
     private String message;
 
     public Server(Map<Integer, Socket> clients) {
+
         this.clients = clients;
 
     }
@@ -27,8 +28,14 @@ public class Server {
 
         while (clients.size() < players) {
 
-            clients.put(i, socket.accept());
-            System.out.println(clients);
+            Socket clientSocket = socket.accept();
+
+            clients.put(i, clientSocket);
+
+            PrintStream out = new PrintStream(clientSocket.getOutputStream());
+
+            out.println("Welcome player " + i);
+
             i++;
 
         }
@@ -48,7 +55,6 @@ public class Server {
             read(i);
 
             //Insert GameLogicHere
-            write(i);
 
             if (i  == (clients.size()-1)) {
                 i = 0;
@@ -71,12 +77,6 @@ public class Server {
 
             bwriter = new BufferedWriter(new OutputStreamWriter(clients.get(j).getOutputStream()));
 
-            //Scanner scanner  = new Scanner(System.in);
-
-            //message = scanner.nextLine();
-
-            //message += "\n";
-
             bwriter.write(message);
 
             bwriter.flush();
@@ -87,17 +87,11 @@ public class Server {
 
     private void read(int i) throws IOException {
 
-        System.out.println(i);
-
         BufferedReader bReader = new BufferedReader(new InputStreamReader(clients.get(i).getInputStream()));
 
         message = bReader.readLine() + "\n";
 
         System.out.println(message);
-
-        //BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clients.get(i).getOutputStream()));
-
-        //out.write(message);
 
     }
 
