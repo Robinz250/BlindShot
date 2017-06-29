@@ -4,10 +4,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.academiadecodigo.bootcamp.Main;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -15,84 +19,82 @@ import java.util.Map;
 /**
  * Created by codecadet on 23/06/17.
  */
-public class Navigation {
-
-    private final int MIN_WIDTH = 1024;
-    private final int MIN_HEIGHT = 768;
-    private final String VIEW_PATH = "../view";
-
-    private LinkedList<Scene> scenes = new LinkedList<Scene>();
-    private Map<String, Initializable> controllers = new HashMap<>();
-
+public final class Navigation {
+    private static Navigation navigation = null;
     private Stage stage;
+    private Scene scene;
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 600;
 
-    private static Navigation instance = null;
+    private BufferedReader in = null;
+    private PrintStream out = null;
+    private static Socket clientSocket = null;
 
-    private Navigation(){
+    private int turn = 0;
+
+    private Navigation() {
 
     }
 
-    public void loadScreen(String view){
+    public void connectToSocket() {
 
-        try {
-
-            FXMLLoader fxmlLoader;
-            fxmlLoader = new FXMLLoader(getClass().getResource(VIEW_PATH + "/" + view + ".fxml"));
-            Parent root = fxmlLoader.load();
-
-            controllers.put(view, fxmlLoader.<Initializable>getController());
-
-            root.getStylesheets().add("css/style.css");
-
-            Scene scene = new Scene(root,MIN_WIDTH,MIN_HEIGHT);
-            scenes.push(scene);
-
-            setScene(scene);
-
-        }catch (IOException e){
-            System.out.println("Failure to load view " + view + " : " + e.getMessage());
-        }
     }
 
-    public static synchronized Navigation getInstance(){
-
-        if(instance == null){
-            instance = new Navigation();
+    public static synchronized Navigation getInstance() {
+        if(navigation == null) {
+            navigation = new Navigation();
         }
-        return instance;
+
+        return navigation;
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
-    public void back() {
+    public void loadScreen() {
 
-        if (scenes.isEmpty()) {
-            return;
+        try {
+
+            GridPane root = FXMLLoader.load(getClass().getResource("../view/grid.fxml"));
+            scene = new Scene(root, WIDTH, HEIGHT);
+            setScene(scene);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        // remove the current scene from the stack
-        scenes.pop();
-
-        // load the scene at the top of the stack
-        setScene(scenes.peek());
     }
 
     private void setScene(Scene scene) {
-
-        // set the scene
-
         stage.setScene(scene);
-
-        // show the stage to reload
         stage.show();
-
-
-
     }
 
-    public Initializable getController(String view) {
-        return controllers.get(view);
+    public Scene getScene() {
+        return scene;
+    }
+
+    public void setClientSocket(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
+
+    public Socket getClientSocket() {
+        return clientSocket;
+    }
+
+    public BufferedReader getIn() {
+        return in;
+    }
+
+    public PrintStream getOut() {
+        return out;
+    }
+
+    public void setTurn(int turn) {
+        this.turn = turn;
+    }
+
+    public int getTurn() {
+        return turn;
     }
 }
