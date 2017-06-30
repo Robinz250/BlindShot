@@ -6,7 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Main;
+import org.academiadecodigo.bootcamp.controller.GridController;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,15 +22,20 @@ import java.util.Map;
  * Created by codecadet on 23/06/17.
  */
 public final class Navigation {
+
     private static Navigation navigation = null;
     private Stage stage;
     private Scene scene;
     public static final int WIDTH = 600;
     public static final int HEIGHT = 600;
 
+    private Map<String, Initializable> controllers = new HashMap<>();
+
     private BufferedReader in = null;
     private PrintStream out = null;
     private static Socket clientSocket = null;
+
+    private Client client;
 
     private int turn = 0;
 
@@ -52,13 +59,19 @@ public final class Navigation {
         this.stage = stage;
     }
 
-    public void loadScreen() {
+    public void loadScreen(String view) {
 
         try {
 
-            FXMLLoader fxmlLoader = FXMLLoader.load(getClass().getResource("../view/grid.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../view/grid.fxml"));
 
-            GridPane root = FXMLLoader.load(getClass().getResource("../view/grid.fxml"));
+            Initializable gridController = fxmlLoader.getController();
+
+            //((GridController)gridController).setClientSocket(clientSocket);
+
+            controllers.put(view, gridController);
+
+            GridPane root = fxmlLoader.load();
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
@@ -100,4 +113,5 @@ public final class Navigation {
     public int getTurn() {
         return turn;
     }
+
 }

@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class gridController implements Initializable {
+public class GridController implements Initializable {
 
     @FXML
     private GridPane grid;

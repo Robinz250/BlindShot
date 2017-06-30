@@ -91,7 +91,9 @@ public class Server {
 
         message = bReader.readLine() + "\n";
 
-        System.out.println(message);
+        //System.out.println(message);
+
+        write(i);
 
     }
 

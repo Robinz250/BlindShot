@@ -17,7 +17,7 @@ public class Main extends Application {
         new Thread(new Client()).start();
 
         Navigation.getInstance().setStage(primaryStage);
-        Navigation.getInstance().loadScreen();
+        Navigation.getInstance().loadScreen("grid");
         primaryStage.setResizable(false);
 
     }
