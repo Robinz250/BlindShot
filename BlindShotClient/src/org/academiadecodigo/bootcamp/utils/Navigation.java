@@ -65,13 +65,15 @@ public final class Navigation {
 
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../view/grid.fxml"));
 
-            Initializable gridController = fxmlLoader.getController();
+            GridPane root = fxmlLoader.load();
 
-            //((GridController)gridController).setClientSocket(clientSocket);
+            GridController gridController = fxmlLoader.getController();
+
+            System.out.println(gridController);
 
             controllers.put(view, gridController);
 
-            GridPane root = fxmlLoader.load();
+            //((GridController)gridController).setClient(client);
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
@@ -114,4 +116,15 @@ public final class Navigation {
         return turn;
     }
 
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Map<String, Initializable> getControllers() {
+        return controllers;
+    }
 }

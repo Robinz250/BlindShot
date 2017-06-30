@@ -9,6 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Main;
 import org.academiadecodigo.bootcamp.utils.Navigation;
 
@@ -25,16 +26,20 @@ public class GridController implements Initializable {
     @FXML
     private Circle circle;
 
-    private Socket clientSocket;
+    private Client client;
+
+    private String move;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         GridPane.setColumnIndex(circle,1);
         GridPane.setRowIndex(circle, 0);
+
+        client = Navigation.getInstance().getClient();
     }
 
-    public void setClientSocket(Socket clientSocket) {
-        this.clientSocket = clientSocket;
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public void move() {
@@ -48,7 +53,9 @@ public class GridController implements Initializable {
 
                             grid.getChildren().remove(circle);
                             grid.add(circle, GridPane.getColumnIndex(circle), GridPane.getRowIndex(circle) + 1);
-                            
+
+                            move = "DOWN";
+                            System.out.println(move);
 
                         }
                         else {
@@ -91,5 +98,19 @@ public class GridController implements Initializable {
                 }
             }
         });
+    }
+
+    public String getMove() {
+        return move;
+    }
+
+    public void setMove(String move) {
+        this.move = move;
+    }
+
+    public void movePlayer(String move) {
+        System.out.println(move);
+        grid.getChildren().remove(circle);
+        grid.add(circle, GridPane.getColumnIndex(circle), GridPane.getRowIndex(circle) + 1);
     }
 }

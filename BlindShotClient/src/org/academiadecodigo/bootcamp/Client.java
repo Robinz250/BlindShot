@@ -1,6 +1,8 @@
 package org.academiadecodigo.bootcamp;
 
 import javafx.fxml.Initializable;
+import org.academiadecodigo.bootcamp.controller.GridController;
+import org.academiadecodigo.bootcamp.utils.Navigation;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,6 +21,8 @@ public class Client implements Runnable {
     private int player;
     private int turn = 0;
     private int numberOfPlayers = 2;
+
+    private String move;
 
     @Override
     public void run() {
@@ -46,12 +50,23 @@ public class Client implements Runnable {
             System.out.println(player + numberOfPlayers + 1);
 
             if (turn == player) {
-                sendMessage();
+
+                while (((GridController) Navigation.getInstance().getControllers().get("grid")).getMove() == null) {
+
+                }
+
+                System.out.println(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove());
+
+                sendMessage(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove() + "\n");
+
+
                 turn++;
             }
 
             else {
+
                 recieveMessage();
+
                 turn++;
             }
         }
@@ -65,6 +80,8 @@ public class Client implements Runnable {
         String message = bReader.readLine();
         System.out.println(message);
 
+        //((GridController) Navigation.getInstance().getControllers().get("grid")).movePlayer(message);
+
         if (i == 0) {
 
             player = Integer.parseInt(message.substring(message.length() - 1));
@@ -77,7 +94,7 @@ public class Client implements Runnable {
 
     }
 
-    public void sendMessage() throws IOException {
+    public void sendMessage(String move) throws IOException {
 
         System.out.println("send");
 
@@ -85,11 +102,13 @@ public class Client implements Runnable {
 
         Scanner scanner = new Scanner(System.in);
 
-        String message = scanner.nextLine();
+        //String message = scanner.nextLine();
 
-        message += "\n";
+        //message += "\n";
 
-        bWriter.write(message);
+        //bWriter.write(message);
+
+        bWriter.write(move);
 
         bWriter.flush();
 
@@ -101,5 +120,13 @@ public class Client implements Runnable {
 
     public int getPlayer() {
         return player;
+    }
+
+    public String getMove() {
+        return move;
+    }
+
+    public void setMove(String move) {
+        this.move = move;
     }
 }

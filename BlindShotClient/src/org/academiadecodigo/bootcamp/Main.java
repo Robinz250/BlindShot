@@ -14,11 +14,13 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        new Thread(new Client()).start();
-
         Navigation.getInstance().setStage(primaryStage);
         Navigation.getInstance().loadScreen("grid");
         primaryStage.setResizable(false);
+
+        Client client = new Client();
+
+        new Thread(client).start();
 
     }
 
