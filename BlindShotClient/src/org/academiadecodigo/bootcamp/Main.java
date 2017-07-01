@@ -22,6 +22,7 @@ public class Main extends Application {
 
         new Thread(client).start();
 
+
     }
 
     public static void main(String[] args) {

@@ -1,7 +1,9 @@
 package org.academiadecodigo.bootcamp.utils;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
@@ -28,6 +30,7 @@ public final class Navigation {
     private Scene scene;
     public static final int WIDTH = 600;
     public static final int HEIGHT = 600;
+    GridPane root;
 
     private Map<String, Initializable> controllers = new HashMap<>();
 
@@ -48,7 +51,7 @@ public final class Navigation {
     }
 
     public static synchronized Navigation getInstance() {
-        if(navigation == null) {
+        if (navigation == null) {
             navigation = new Navigation();
         }
 
@@ -65,15 +68,14 @@ public final class Navigation {
 
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../view/grid.fxml"));
 
-            GridPane root = fxmlLoader.load();
+            root = fxmlLoader.load();
+            root.setGridLinesVisible(true);
 
             GridController gridController = fxmlLoader.getController();
 
             System.out.println(gridController);
 
             controllers.put(view, gridController);
-
-            //((GridController)gridController).setClient(client);
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
@@ -90,6 +92,11 @@ public final class Navigation {
 
     public Scene getScene() {
         return scene;
+    }
+
+    public ObservableList<Node> getAllSceneChildren(String view) {
+
+        return root.getChildren();
     }
 
     public void setClientSocket(Socket clientSocket) {
