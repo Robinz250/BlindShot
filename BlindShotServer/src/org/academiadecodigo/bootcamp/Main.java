@@ -2,9 +2,7 @@ package org.academiadecodigo.bootcamp;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * Created by codecadet on 28/06/17.
@@ -16,7 +14,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Map<Integer, Socket> clients = new HashMap<>();
+        LinkedList<Socket> clients = new LinkedList<>();
         Server server = new Server(clients);
 
         try {
@@ -24,7 +22,7 @@ public class Main {
             server.socketConnect();
             server.acceptClient(NUMBEROFPLAYERS);
 
-            server.messageHandle();
+            //server.messageHandle();
 
         } catch (IOException e) {
             e.printStackTrace();

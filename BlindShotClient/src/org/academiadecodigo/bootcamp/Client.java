@@ -1,6 +1,6 @@
 package org.academiadecodigo.bootcamp;
 
-import javafx.fxml.Initializable;
+import javafx.application.Platform;
 import org.academiadecodigo.bootcamp.controller.GridController;
 import org.academiadecodigo.bootcamp.utils.Navigation;
 
@@ -37,6 +37,12 @@ public class Client implements Runnable {
 
         clientSocket = new Socket(host, port);
 
+        receive();
+
+        sendMessage();
+
+        receive();
+
         recieveMessage();
 
         while (true) {
@@ -51,22 +57,13 @@ public class Client implements Runnable {
 
             if (turn == player) {
 
-                while (((GridController) Navigation.getInstance().getControllers().get("grid")).getMove() == null) {
-
-                }
-
-                System.out.println(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove());
-
-                sendMessage(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove() + "\n");
-
-
+                sendMove(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove());
                 turn++;
             }
 
             else {
 
-                recieveMessage();
-
+                receive();
                 turn++;
             }
         }
@@ -77,24 +74,57 @@ public class Client implements Runnable {
         System.out.println("receive");
 
         BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String message = bReader.readLine();
-        System.out.println(message);
 
-        //((GridController) Navigation.getInstance().getControllers().get("grid")).movePlayer(message);
+        while (true) {
 
-        if (i == 0) {
-
-            player = Integer.parseInt(message.substring(message.length() - 1));
-
-            System.out.println("player: " + player);
-
+            if (bReader.readLine() != null) {
+                break;
+            }
         }
 
-        i++;
+        System.out.println("let the games begin");
+        bReader.close();
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Navigation.getInstance().loadScreen("grid");
+            }
+        });
 
     }
 
-    public void sendMessage(String move) throws IOException {
+    public void receive() {
+
+        try {
+
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            String message = "";
+
+            while (!(message = bReader.readLine()).equals("")) {
+
+                System.out.println(message);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMove(String move) throws IOException {
+
+        System.out.println("send");
+
+        BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+
+        bWriter.write(move);
+
+        bWriter.flush();
+
+    }
+
+    public void sendMessage() throws IOException {
 
         System.out.println("send");
 
@@ -102,13 +132,11 @@ public class Client implements Runnable {
 
         Scanner scanner = new Scanner(System.in);
 
-        //String message = scanner.nextLine();
+        String message = scanner.nextLine() + "\n";
 
         //message += "\n";
 
-        //bWriter.write(message);
-
-        bWriter.write(move);
+        bWriter.write(message);
 
         bWriter.flush();
 

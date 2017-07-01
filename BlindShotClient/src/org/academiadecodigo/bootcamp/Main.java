@@ -15,7 +15,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         Navigation.getInstance().setStage(primaryStage);
-        Navigation.getInstance().loadScreen("grid");
+        //Navigation.getInstance().loadScreen("grid");
         primaryStage.setResizable(false);
 
         Client client = new Client();
