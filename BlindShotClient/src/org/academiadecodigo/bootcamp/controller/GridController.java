@@ -36,9 +36,6 @@ public class GridController implements Initializable {
 
     private Circle PlayerCircle;
 
-
-    private String move;
-
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
      */
@@ -130,8 +127,13 @@ public class GridController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         this.messageService = (MessageService) ServiceRegistry.getInstance().getService("Mensage");
         this.myGridElements = grid.getChildren();
+
+
+
         createGridElements();
         createPlayerCircleAndPosition();
+
+        showMessage("Welcome : " + messageService.getPlayerName());
     }
 
     public void createPlayerCircleAndPosition() {
@@ -267,17 +269,13 @@ public class GridController implements Initializable {
         return result;
     }
 
-    public String getMove() {
-        return move;
-    }
-
     public void showMessage(String message){
         BorderPane rec = new BorderPane(new Text(message));
         rec.setPadding(new Insets(15));
 
         grid.add(rec,1,0);
 
-        rec.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.5");
+        rec.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8");
         rec.setTranslateY(rec.getLayoutY() - 100);
 
         TranslateTransition tt = new TranslateTransition(Duration.millis(1000), rec);

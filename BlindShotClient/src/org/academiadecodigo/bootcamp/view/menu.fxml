@@ -14,7 +14,7 @@
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <TextArea maxHeight="24.0" maxWidth="350.0" prefHeight="24.0" prefWidth="350.0" promptText="Your Name" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+      <TextArea fx:id="nameInput" maxHeight="24.0" maxWidth="350.0" prefHeight="24.0" prefWidth="350.0" promptText="Your Name" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
       <Button fx:id="Gobtn" mnemonicParsing="false" onAction="#sendName" text="Go" translateY="70.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
    </children>
 </GridPane>

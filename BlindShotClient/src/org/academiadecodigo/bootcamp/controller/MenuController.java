@@ -4,8 +4,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Service.ServiceRegistry;
+import org.academiadecodigo.bootcamp.utils.Navigation;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,10 +24,14 @@ public class MenuController implements Initializable {
     private Button Gobtn;
 
     @FXML
+    private TextArea nameInput;
+
+    @FXML
     void sendName(ActionEvent event) {
-        System.out.println("cenas");
         try {
-            messageService.sendMessage("Hey");
+            messageService.setPlayerName(nameInput.getText());
+            messageService.sendMessage(nameInput.getText());
+            Navigation.getInstance().loadScreen("grid");
         } catch (IOException e) {
             e.printStackTrace();
         }

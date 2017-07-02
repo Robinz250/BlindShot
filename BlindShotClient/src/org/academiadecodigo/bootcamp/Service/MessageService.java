@@ -18,13 +18,13 @@ public class MessageService implements Service,Runnable{
     private int player;
     private int turn = 0;
     private int numberOfPlayers = 2;
+    private String PlayerName ;
 
     private String move;
 
     @Override
     public void run() {
         try {
-            System.out.println("cenas");
             connect();
         } catch (IOException e) {
             e.printStackTrace();
@@ -109,5 +109,13 @@ public class MessageService implements Service,Runnable{
 
     public void setMove(String move) {
         this.move = move;
+    }
+
+    public void setPlayerName(String name){
+        this.PlayerName = name;
+    }
+
+    public String getPlayerName(){
+        return PlayerName;
     }
 }
