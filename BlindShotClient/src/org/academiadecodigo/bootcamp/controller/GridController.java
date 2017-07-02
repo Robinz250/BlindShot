@@ -73,12 +73,7 @@ public class GridController implements Initializable {
     private EventHandler hoverOutPlayer = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
-            if (atackMode) {
-                clearAtakeHighlight();
-            } else {
-                clearHighlight();
-            }
-
+            clearHighlight();
         }
     };
 
@@ -129,7 +124,6 @@ public class GridController implements Initializable {
         this.myGridElements = grid.getChildren();
 
 
-
         createGridElements();
         createPlayerCircleAndPosition();
 
@@ -153,20 +147,9 @@ public class GridController implements Initializable {
     public void clearHighlight() {
         for (Node node : myGridElements) {
             if (node instanceof Pane) {
-                if (!node.getStyle().contains("Hole")) {
+                if (!node.getStyle().contains("Hole") && !node.getStyle().contains("lawngreen")) {
                     node.setStyle("-fx-background-color: black;-fx-border-color: white");
                 }
-            }
-        }
-    }
-
-    public void clearAtakeHighlight() {
-        for (Node node : myGridElements) {
-            if (node instanceof Pane) {
-                if (!node.getStyle().contains("Hole")) {
-                    node.setStyle("-fx-background-color: black;-fx-border-color: white");
-                }
-
             }
         }
     }
@@ -269,11 +252,11 @@ public class GridController implements Initializable {
         return result;
     }
 
-    public void showMessage(String message){
+    public void showMessage(String message) {
         BorderPane rec = new BorderPane(new Text(message));
         rec.setPadding(new Insets(15));
-
-        grid.add(rec,1,0);
+        rec.setId("ModalMessage");
+        grid.add(rec, 1, 0);
 
         rec.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8");
         rec.setTranslateY(rec.getLayoutY() - 100);
