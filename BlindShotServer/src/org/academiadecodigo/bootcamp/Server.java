@@ -29,7 +29,7 @@ public class Server {
         while (clients.size() < players) {
 
             Socket clientSocket = socket.accept();
-
+            System.out.println(clientSocket.isConnected());
             clients.put(i, clientSocket);
 
             PrintStream out = new PrintStream(clientSocket.getOutputStream());

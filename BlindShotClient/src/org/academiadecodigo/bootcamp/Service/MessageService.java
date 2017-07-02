@@ -1,19 +1,15 @@
-package org.academiadecodigo.bootcamp;
+package org.academiadecodigo.bootcamp.Service;
 
-import javafx.fxml.Initializable;
 import org.academiadecodigo.bootcamp.controller.GridController;
 import org.academiadecodigo.bootcamp.utils.Navigation;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 /**
- * Created by codecadet on 28/06/17.
+ * Created by codecadet on 02/07/17.
  */
-/*
-public class Client implements Runnable {
-
+public class MessageService implements Service,Runnable{
     private final int port = 9999;
     private final String host = "localhost";
     private Socket clientSocket;
@@ -28,6 +24,7 @@ public class Client implements Runnable {
     @Override
     public void run() {
         try {
+            System.out.println("cenas");
             connect();
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,8 +35,8 @@ public class Client implements Runnable {
 
         clientSocket = new Socket(host, port);
 
-        recieveMessage();
-
+        //recieveMessage();
+/*
         while (true) {
 
             if (turn == numberOfPlayers) {
@@ -67,6 +64,7 @@ public class Client implements Runnable {
             }
 
         }
+        */
     }
 
     public void recieveMessage() throws IOException {
@@ -113,4 +111,3 @@ public class Client implements Runnable {
         this.move = move;
     }
 }
-*/

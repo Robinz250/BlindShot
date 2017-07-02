@@ -1,23 +1,16 @@
 package org.academiadecodigo.bootcamp.utils;
 
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import org.academiadecodigo.bootcamp.Client;
-import org.academiadecodigo.bootcamp.Main;
-import org.academiadecodigo.bootcamp.controller.GridController;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -38,7 +31,6 @@ public final class Navigation {
     private PrintStream out = null;
     private static Socket clientSocket = null;
 
-    private Client client;
 
     private int turn = 0;
 
@@ -66,16 +58,13 @@ public final class Navigation {
 
         try {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../view/grid.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../view/"+ view +".fxml"));
 
             root = fxmlLoader.load();
-            root.setGridLinesVisible(true);
 
-            GridController gridController = fxmlLoader.getController();
+            //GridController gridController = fxmlLoader.getController();
 
-            System.out.println(gridController);
-
-            controllers.put(view, gridController);
+            //controllers.put(view, gridController);
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
@@ -94,10 +83,6 @@ public final class Navigation {
         return scene;
     }
 
-    public ObservableList<Node> getAllSceneChildren(String view) {
-
-        return root.getChildren();
-    }
 
     public void setClientSocket(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -121,14 +106,6 @@ public final class Navigation {
 
     public int getTurn() {
         return turn;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
     }
 
     public Map<String, Initializable> getControllers() {
