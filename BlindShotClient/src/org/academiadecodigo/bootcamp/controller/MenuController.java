@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Service.ServiceRegistry;
 import org.academiadecodigo.bootcamp.utils.Navigation;
@@ -24,7 +25,7 @@ public class MenuController implements Initializable {
     private Button Gobtn;
 
     @FXML
-    private TextArea nameInput;
+    private TextField nameInput;
 
     @FXML
     void sendName(ActionEvent event) {
