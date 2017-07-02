@@ -36,6 +36,7 @@ public class GridController implements Initializable {
         GridPane.setRowIndex(circle, 0);
 
         client = Navigation.getInstance().getClient();
+        System.out.println(client);
     }
 
     public void setClient(Client client) {
@@ -55,7 +56,12 @@ public class GridController implements Initializable {
                             grid.add(circle, GridPane.getColumnIndex(circle), GridPane.getRowIndex(circle) + 1);
 
                             move = "DOWN";
-                            System.out.println(move);
+                            //System.out.println(move);
+                            try {
+                                client.sendMove(move);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
 
                         }
                         else {

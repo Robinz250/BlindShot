@@ -11,7 +11,7 @@ import java.util.Scanner;
 /**
  * Created by codecadet on 28/06/17.
  */
-public class Client implements Runnable {
+public class Client {
 
     private final int port = 9999;
     private final String host = "localhost";
@@ -19,19 +19,11 @@ public class Client implements Runnable {
     private String playerName;
     private int i = 0;
     private int player;
-    private int turn = 0;
+    private int turn = 1;
     private int numberOfPlayers = 2;
+    private GridController controller;
 
     private String move;
-
-    @Override
-    public void run() {
-        try {
-            connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void connect() throws IOException {
 
@@ -41,75 +33,100 @@ public class Client implements Runnable {
 
         sendMessage();
 
-        receive();
+        //receive();
+
+        String message = receive();
+
+        System.out.println(message.substring(40));
+
+        player = Integer.parseInt(message.substring(40));
 
         recieveMessage();
 
-        while (true) {
+    }
+
+    public void startGame() {
+
+        controller = (GridController) Navigation.getInstance().getControllers().get("grid");
+
+        /*while (true) {
 
             if (turn == numberOfPlayers) {
                 turn = 0;
-            }
+            }*/
 
             System.out.println("turn: " + turn);
 
             System.out.println(player + numberOfPlayers + 1);
 
-            if (turn == player) {
+            synchronized (this) {
 
-                sendMove(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove());
-                turn++;
+                if (turn == player) {
+
+                    controller.move();
+                    turn++;
+                    System.out.println(turn);
+                }
             }
 
-            else {
+            //else {
 
-                receive();
+                controller.movePlayer("");
+
                 turn++;
-            }
+
+            //}
         }
-    }
+    //}
 
-    public void recieveMessage() throws IOException {
+    public String recieveMessage() throws IOException {
 
         System.out.println("receive");
+
+        String message = null;
 
         BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
         while (true) {
 
-            if (bReader.readLine() != null) {
+            if ((message = bReader.readLine()) != null) {
                 break;
             }
         }
 
-        System.out.println("let the games begin");
-        bReader.close();
+        System.out.println(message);
+        //bReader.close();
 
-        Platform.runLater(new Runnable() {
+        /*Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 Navigation.getInstance().loadScreen("grid");
             }
-        });
-
+        });*/
+        return message;
     }
 
-    public void receive() {
+    public String receive() {
+
+        String message = "";
 
         try {
 
             BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String message = "";
-
-            while (!(message = bReader.readLine()).equals("")) {
+            /*while (!(message = bReader.readLine()).equals("")) {
 
                 System.out.println(message);
-            }
+            }*/
+
+            message = bReader.readLine();
+            System.out.println(message);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return message;
     }
 
     public void sendMove(String move) throws IOException {

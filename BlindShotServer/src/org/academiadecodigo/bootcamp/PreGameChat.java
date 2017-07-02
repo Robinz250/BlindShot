@@ -33,7 +33,8 @@ public class PreGameChat implements Runnable {
                 sendMessage("Ahh, i see you have arrived! What's your name, mate? \n");
                 String name = receiveMessage();
 
-                sendMessage("Nice to meet you, " + name + "! \nYou will be player " + (id + 1) + "\nThe game will start as soon the other players connect...\n");
+                sendMessage("Nice to meet you, " + name + "! You will be player " + (id + 1)+"\n");
+                //+ "\nThe game will start as soon the other players connect...\n");
 
                 //in.close();
                 //out.close();
@@ -55,7 +56,6 @@ public class PreGameChat implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public String receiveMessage() {

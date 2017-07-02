@@ -70,7 +70,7 @@ public class Server {
                 try {
 
                     BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-                    bWriter.write("Let the games begin... bitches! MUHUHAHAHAHA.. *cof*cof*");
+                    bWriter.write("Let the games begin, bitches! MUHUHAHAHAHA.. *cof*cof*");
                     bWriter.close();
 
                 } catch (IOException e) {
@@ -78,6 +78,8 @@ public class Server {
             }
 
         }
+
+        
 
     }
 

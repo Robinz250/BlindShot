@@ -69,11 +69,7 @@ public final class Navigation {
 
             GridController gridController = fxmlLoader.getController();
 
-            System.out.println(gridController);
-
             controllers.put(view, gridController);
-
-            //((GridController)gridController).setClient(client);
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
