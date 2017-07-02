@@ -4,73 +4,42 @@ import java.io.*;
 import java.net.Socket;
 
 /**
- * Created by ruimorais on 01/07/17.
+ * Created by ruimorais on 02/07/17.
  */
 public class PreGameChat implements Runnable {
 
     private Socket clientSocket;
     private BufferedReader in;
     private BufferedWriter out;
-    private int id;
-    private Server server;
+    private int player;
 
-    public PreGameChat(Socket clientSocket, int i, Server server) {
+    public PreGameChat(Socket clientSocket, int player) {
         this.clientSocket = clientSocket;
-        this.id = i;
-        this.server = server;
-
+        this.player = player;
     }
 
     @Override
     public void run() {
 
         try {
-
-            {
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-                sendMessage("Ahh, i see you have arrived! What's your name, mate? \n");
-                String name = receiveMessage();
-
-                sendMessage("Nice to meet you, " + name + "! You will be player " + (id + 1)+"\n");
-                //+ "\nThe game will start as soon the other players connect...\n");
-
-                //in.close();
-                //out.close();
-
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void sendMessage(String message) {
-
-        try {
-            out.write(message + "\n");
-            out.flush();
-
+            sendMessage("What's your name?");
+            String name = receiveMessage();
+            sendMessage("Welcome, " + name + "! You will be player " + (player+1));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public String receiveMessage() {
-
-        String message = "";
-
-        try {
-
-            message = in.readLine();
-            System.out.println(message);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public String receiveMessage() throws IOException {
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        String message = in.readLine();
+        System.out.println(message);
         return message;
+    }
 
+    public void sendMessage(String message) throws IOException {
+        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        out.write(message + "\n");
+        out.flush();
     }
 }

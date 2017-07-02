@@ -1,177 +1,68 @@
 package org.academiadecodigo.bootcamp;
 
-import javafx.application.Platform;
-import org.academiadecodigo.bootcamp.controller.GridController;
-import org.academiadecodigo.bootcamp.utils.Navigation;
-
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 /**
- * Created by codecadet on 28/06/17.
+ * Created by ruimorais on 02/07/17.
  */
-public class Client {
+public class Client implements Runnable {
 
-    private final int port = 9999;
-    private final String host = "localhost";
     private Socket clientSocket;
-    private String playerName;
-    private int i = 0;
+    private BufferedWriter out;
+    private BufferedReader in;
     private int player;
-    private int turn = 1;
-    private int numberOfPlayers = 2;
-    private GridController controller;
 
-    private String move;
-
-    public void connect() throws IOException {
-
-        clientSocket = new Socket(host, port);
-
-        receive();
-
-        sendMessage();
-
-        //receive();
-
-        String message = receive();
-
-        System.out.println(message.substring(40));
-
-        player = Integer.parseInt(message.substring(40));
-
-        recieveMessage();
-
-    }
-
-    public void startGame() {
-
-        controller = (GridController) Navigation.getInstance().getControllers().get("grid");
-
-        /*while (true) {
-
-            if (turn == numberOfPlayers) {
-                turn = 0;
-            }*/
-
-            System.out.println("turn: " + turn);
-
-            System.out.println(player + numberOfPlayers + 1);
-
-            synchronized (this) {
-
-                if (turn == player) {
-
-                    controller.move();
-                    turn++;
-                    System.out.println(turn);
-                }
-            }
-
-            //else {
-
-                controller.movePlayer("");
-
-                turn++;
-
-            //}
-        }
-    //}
-
-    public String recieveMessage() throws IOException {
-
-        System.out.println("receive");
-
-        String message = null;
-
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        while (true) {
-
-            if ((message = bReader.readLine()) != null) {
-                break;
-            }
-        }
-
-        System.out.println(message);
-        //bReader.close();
-
-        /*Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Navigation.getInstance().loadScreen("grid");
-            }
-        });*/
-        return message;
-    }
-
-    public String receive() {
-
-        String message = "";
+    @Override
+    public void run() {
 
         try {
-
-            BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-            /*while (!(message = bReader.readLine()).equals("")) {
-
-                System.out.println(message);
-            }*/
-
-            message = bReader.readLine();
-            System.out.println(message);
-
+            connectToServer();
+            startChat();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public void connectToServer() throws IOException {
+        clientSocket = new Socket("localhost", 6666);
+    }
+
+    public void startChat() throws IOException {
+
+        receiveMessage();
+        sendMessage(readFromKeyboard());
+        String message = receiveMessage();
+        player = Character.getNumericValue(message.charAt(message.length()-1));
+        receiveMessage();
+
+    }
+
+    public String receiveMessage() throws IOException {
+        System.out.println("receive");
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        String message = in.readLine();
+        System.out.println(message);
         return message;
     }
 
-    public void sendMove(String move) throws IOException {
-
+    public void sendMessage(String message) throws IOException {
         System.out.println("send");
-
-        BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-        bWriter.write(move);
-
-        bWriter.flush();
-
+        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        out.write(message + "\n");
+        out.flush();
     }
 
-    public void sendMessage() throws IOException {
-
-        System.out.println("send");
-
-        BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-        Scanner scanner = new Scanner(System.in);
-
-        String message = scanner.nextLine() + "\n";
-
-        //message += "\n";
-
-        bWriter.write(message);
-
-        bWriter.flush();
-
-    }
-
-    public Socket getSocket() {
-        return clientSocket;
+    public String readFromKeyboard() throws IOException {
+        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
+        return keyboard.readLine();
     }
 
     public int getPlayer() {
         return player;
     }
 
-    public String getMove() {
-        return move;
-    }
-
-    public void setMove(String move) {
-        this.move = move;
+    public Socket getClientSocket() {
+        return clientSocket;
     }
 }

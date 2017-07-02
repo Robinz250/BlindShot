@@ -3,139 +3,56 @@ package org.academiadecodigo.bootcamp;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Map;
 
 /**
- * Created by codecadet on 28/06/17.
+ * Created by ruimorais on 02/07/17.
  */
 public class Server {
 
-    private ServerSocket socket;
-    private LinkedList<Socket> clients;
-    private String message;
-    private final Thread[] threads = new Thread[2];
+    public static final int NUMBER_OF_PLAYERS = 2;
+    private ServerSocket serverSocket;
+    private Socket[] clientSockets;
+    private Thread[] threads;
+    private int turn = 0;
 
-    public Server(LinkedList<Socket> clients) {
+    public void init() throws IOException {
 
-        this.clients = clients;
+        serverSocket = new ServerSocket(6666);
+        clientSockets = new Socket[NUMBER_OF_PLAYERS];
+        threads = new Thread[NUMBER_OF_PLAYERS];
 
     }
 
-    public void acceptClient(int players) throws IOException {
+    public void start() throws IOException, InterruptedException {
 
-        int i = 0;
-
-        BufferedWriter bWriter;
-
-        while (clients.size() < players) {
-
-            Socket clientSocket = socket.accept();
-
-            threads[i] = new Thread(new PreGameChat(clientSocket, i, this));
-
+        for (int i = 0; i < clientSockets.length; i++) {
+            clientSockets[i] = serverSocket.accept();
+            threads[i] = new Thread(new PreGameChat(clientSockets[i], i));
             threads[i].start();
-
-            clients.add(clientSocket);
-
-            i++;
-
         }
-
-        try {
-            System.out.println("waiting for threads to die...");
-            threads[0].join();
-            System.out.println("thread 0 died");
-            threads[1].join();
-            System.out.println("thread 1 died");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (Thread thread : threads) {
+            thread.join();
         }
-
         startGame();
-
     }
 
-    /*synchronized (this) {
-        startGame();
-        }
-    }*/
+    public void startGame() throws IOException {
 
-    public void startGame() {
+        System.out.println("kk");
 
-        System.out.println("let the games begin");
-
-        for (Socket s : clients) {
-
-                try {
-
-                    BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-                    bWriter.write("Let the games begin, bitches! MUHUHAHAHAHA.. *cof*cof*");
-                    bWriter.close();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-            }
-
+        for (Socket socket : clientSockets) {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write("Let the games begin! \n");
+            out.flush();
         }
 
-        
+        String message;
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[0].getInputStream()));
 
-    }
-
-    public void socketConnect() throws IOException {
-        socket = new ServerSocket(9999);
-    }
-
-    public void messageHandle() throws IOException {
-
-        int i = 0;
-
-        while (i < clients.size()) {
-
-            read(i);
-
-            //Insert GameLogicHere
-
-            if (i  == (clients.size()-1)) {
-                i = 0;
-                continue;
-            }
-
-            i++;
-
+        while ((message = in.readLine()) == null) {
+            message = in.readLine();
         }
-    }
-
-    private void write(int i) throws IOException {
-
-        BufferedWriter bwriter;
-
-        for (int j = 0; j < clients.size(); j++) {
-            if (j == i) {
-                continue;
-            }
-
-            bwriter = new BufferedWriter(new OutputStreamWriter(clients.get(j).getOutputStream()));
-
-            bwriter.write(message);
-
-            bwriter.flush();
-
-        }
-
-    }
-
-    private void read(int i) throws IOException {
-
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(clients.get(i).getInputStream()));
-
-        message = bReader.readLine() + "\n";
-
-        //System.out.println(message);
-
-        write(i);
-
+        System.out.println(message);
     }
 
 }
