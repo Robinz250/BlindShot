@@ -36,10 +36,13 @@ public class Client {
         //receive();
 
         String message = receive();
+        String[] messagearray;
 
-        System.out.println(message.substring(40));
+        messagearray = message.split(" ");
 
-        player = Integer.parseInt(message.substring(40));
+        System.out.println(messagearray[9]);
+
+        player = message.lastIndexOf(message);
 
         recieveMessage();
 
