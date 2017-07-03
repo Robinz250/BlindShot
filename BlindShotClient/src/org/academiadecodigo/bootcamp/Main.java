@@ -15,7 +15,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         Navigation.getInstance().setStage(primaryStage);
-        Navigation.getInstance().loadScreen("menu");
+        Navigation.getInstance().loadScreen("grid");
         primaryStage.setResizable(false);
 
 

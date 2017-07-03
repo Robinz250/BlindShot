@@ -1,6 +1,8 @@
 package org.academiadecodigo.bootcamp.controller;
 
 import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -85,13 +87,13 @@ public class GridController implements Initializable {
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
         showMessage("Player 1 | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+        atackMode = !atackMode;
         try {
             messageService.sendMessage("Player 1 | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
         clearEnablePanes();
-        atackMode = !atackMode;
     }
 
     /**
@@ -102,7 +104,7 @@ public class GridController implements Initializable {
         grid.getChildren().remove(PlayerCircle);
         grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
         showMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
-
+        atackMode = !atackMode;
         try {
             messageService.sendMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
         } catch (IOException e) {
@@ -111,12 +113,12 @@ public class GridController implements Initializable {
 
 
         clearEnablePanes();
-        atackMode = !atackMode;
+
     }
 
 
     /**
-     * First Method to be read - get
+     * First Method to be read - get the service for mesage handler
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -125,18 +127,34 @@ public class GridController implements Initializable {
 
 
         createGridElements();
-        createPlayerCircleAndPosition();
+        createPlayerObject();
 
-        showMessage("Welcome : " + messageService.getPlayerName());
+        if (messageService.getPlayerName() == null){
+            showMessage("Welcome : Anonimous");
+        } else {
+            showMessage("Welcome : " + messageService.getPlayerName());
+        }
+
+
     }
 
-    public void createPlayerCircleAndPosition() {
+    /**
+     * Create jafafx object that represent the player
+     */
+
+    public void createPlayerObject() {
         PlayerCircle = new Circle();
         PlayerCircle.setRadius(10);
         PlayerCircle.setStyle("-fx-background-color: blue");
         PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
         PlayerCircle.setFocusTraversable(true);
-        grid.add(PlayerCircle, (int) (Math.random() * grid.getColumnConstraints().size()), (int) (Math.random() * grid.getRowConstraints().size()));
+
+        /*
+        * choose between createRandomPlayerPosition : to create random position
+        *   or choose createPlayerPosition(int row,int column) : to create costum position
+        * */
+        createRandomPlayerPosition();
+
         grid.setHalignment(PlayerCircle, HPos.CENTER);
 
         PlayerCircle.setOnMouseEntered(onHoverPlayer);
@@ -144,6 +162,24 @@ public class GridController implements Initializable {
         PlayerCircle.setOnMouseExited(hoverOutPlayer);
     }
 
+    /**
+     * Create jafafx object that represent the player an insert on grid randomness
+     */
+
+    public void createRandomPlayerPosition() {
+        grid.add(PlayerCircle, (int) (Math.random() * grid.getColumnConstraints().size()), (int) (Math.random() * grid.getRowConstraints().size()));
+    }
+
+    /**
+     * Create jafafx object that represent the player an insert on grid
+     */
+    public void createPlayerPosition(int row,int column) {
+        grid.add(PlayerCircle, row, column);
+
+    }
+    /**
+     * Clear grid cells that been painted to highlight the path
+     */
     public void clearHighlight() {
         for (Node node : myGridElements) {
             if (node instanceof Pane) {
@@ -154,6 +190,10 @@ public class GridController implements Initializable {
         }
     }
 
+    /**
+     * Every pane/ cell is disable , this method put all the enable pane's disabled
+     */
+
     public void clearEnablePanes() {
         for (Node node : myGridElements) {
             if (node instanceof Pane) {
@@ -161,6 +201,10 @@ public class GridController implements Initializable {
             }
         }
     }
+
+    /**
+     * Create jafaFx Pane in each cell of the Grid
+     */
 
     private void createGridElements() {
         // Get number of Rows and
@@ -179,6 +223,10 @@ public class GridController implements Initializable {
         }
     }
 
+    /**
+     * Get player coordenades on hashMap
+     */
+
     private Map<String, Integer> getMyPlayerCoordenates() {
         for (Node s : myGridElements) {
             if (s instanceof Circle) {
@@ -191,6 +239,9 @@ public class GridController implements Initializable {
         return null;
     }
 
+    /**
+     * Create the highlight to see were the player should go. Move mode
+     */
     private void seeWereCanPlayerGo() {
         int PlayerWalker = 2;
         int Prow = getMyPlayerCoordenates().get("Row").intValue();
@@ -198,6 +249,11 @@ public class GridController implements Initializable {
 
         highLightPath(PlayerWalker, Prow, Pcolumn, "red");
     }
+
+    /**
+     * Method both use by seeWereCanPlayerGo() and atack() to higligh the path
+     * receive the number os cells length, the player row and player column and the color to paint panes
+     */
 
     private void highLightPath(int pathLenght, int PlayerRow, int PlayerColumn, String color) {
         for (int i = 1; i <= pathLenght; i++) {
@@ -228,6 +284,10 @@ public class GridController implements Initializable {
         }
     }
 
+    /**
+     *  Create the highlight to see were the player is able to atack. Atack mode
+     */
+
     private void atack() {
         int AtakLenght = 5;
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
@@ -235,6 +295,10 @@ public class GridController implements Initializable {
 
         highLightPath(AtakLenght, PlayerRow, PlayerColumn, "orange");
     }
+
+    /**
+     *  Get the element selected on that especific cell
+     */
 
     public Node getNodeByRowColumnIndex(final int row, final int column) {
         Node result = null;
@@ -252,6 +316,9 @@ public class GridController implements Initializable {
         return result;
     }
 
+    /**
+     *  show message on top left corner
+     */
     public void showMessage(String message) {
         BorderPane rec = new BorderPane(new Text(message));
         rec.setPadding(new Insets(15));
@@ -260,18 +327,41 @@ public class GridController implements Initializable {
 
         rec.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8");
         rec.setTranslateY(rec.getLayoutY() - 100);
+        PauseTransition pt = new PauseTransition(Duration.millis(1000));
+        TranslateTransition aa = new TranslateTransition(Duration.millis(1000), rec);
+        aa.setByY(150);
+        TranslateTransition bb = new TranslateTransition(Duration.millis(1000), rec);
+        bb.setByY(- 150);
 
-        TranslateTransition tt = new TranslateTransition(Duration.millis(1000), rec);
-        tt.setByY(150);
-        tt.play();
+        SequentialTransition seqTransition = new SequentialTransition (aa ,pt,bb);
 
-        PauseTransition wait = new PauseTransition(Duration.seconds(2));
-        wait.setOnFinished((e) -> {
-        /*YOUR METHOD*/
-            tt.setByY(-150);
-            tt.play();
-            wait.playFromStart();
-        });
-        wait.play();
+        seqTransition.play();
+
+
+
+    }
+
+    /**
+     *  show message on center - Zoom animation
+     */
+    public void popUpMessage(String message) {
+        BorderPane pop = new BorderPane(new Text(message));
+        pop.setPadding(new Insets(15));
+        pop.setId("popUpMessage");
+        grid.add(pop, grid.getColumnConstraints().size() / 2 - 2, grid.getRowConstraints().size() / 2);
+        PauseTransition pp = new PauseTransition(Duration.millis(700));
+
+        pop.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8; -fx-scale-y: 0;-fx-scale-x: 0");
+        ScaleTransition aa = new ScaleTransition(Duration.millis(1000), pop);
+        aa.setByX(2f);
+        aa.setByY(2f);
+
+        ScaleTransition bb = new ScaleTransition(Duration.millis(1000), pop);
+        bb.setByX(-2f);
+        bb.setByY(-2f);
+
+        SequentialTransition seqTransition = new SequentialTransition (aa ,pp,bb);
+
+        seqTransition.play();
     }
 }
