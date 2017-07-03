@@ -22,15 +22,22 @@ public class PreGameChat implements Runnable {
     public void run() {
 
         try {
-            sendMessage("What's your name?");
-            String name = receiveMessage();
-            sendMessage("Welcome, " + name + "! You will be player " + (player+1));
+            sendMessage(Integer.toString(player+1));
+            receiveMessage();
+            receiveMessage();
+            sendMessage("f");
+            //sendMessage("Let the games begin");
+            System.out.println("Thread of pregamechat died");
+            //sendMessage("e");
+            //String name = receiveMessage();
+            //sendMessage("Welcome, " + name + "! You will be player " + (player+1));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public String receiveMessage() throws IOException {
+        System.out.println("receive");
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String message = in.readLine();
         System.out.println(message);
@@ -38,6 +45,7 @@ public class PreGameChat implements Runnable {
     }
 
     public void sendMessage(String message) throws IOException {
+        System.out.println("send");
         out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         out.write(message + "\n");
         out.flush();

@@ -1,5 +1,8 @@
 package org.academiadecodigo.bootcamp;
 
+import javafx.application.Platform;
+import org.academiadecodigo.bootcamp.controller.MenuController;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -18,7 +21,7 @@ public class Client implements Runnable {
 
         try {
             connectToServer();
-            startChat();
+            //startChat();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,24 +29,20 @@ public class Client implements Runnable {
 
     public void connectToServer() throws IOException {
         clientSocket = new Socket("localhost", 6666);
+        System.out.println("waiting for server message");
+        waitForServerMessage();
     }
 
-    public void startChat() throws IOException {
-
-        receiveMessage();
-        sendMessage(readFromKeyboard());
-        String message = receiveMessage();
-        player = Character.getNumericValue(message.charAt(message.length()-1));
-        receiveMessage();
-
-    }
-
-    public String receiveMessage() throws IOException {
-        System.out.println("receive");
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String message = in.readLine();
-        System.out.println(message);
-        return message;
+    public void waitForServerMessage() {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String message;
+            message = in.readLine();
+            player = Integer.parseInt(message);
+            System.out.println(player);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage(String message) throws IOException {
@@ -53,9 +52,16 @@ public class Client implements Runnable {
         out.flush();
     }
 
-    public String readFromKeyboard() throws IOException {
-        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
-        return keyboard.readLine();
+    public void receiveMessage() {
+        System.out.println("receive");
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String message;
+            message = in.readLine();
+            System.out.println(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getPlayer() {

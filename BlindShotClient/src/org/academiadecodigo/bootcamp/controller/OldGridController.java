@@ -1,6 +1,8 @@
-package org.academiadecodigo.bootcamp;
+package org.academiadecodigo.bootcamp.controller;
 
 import javafx.fxml.Initializable;
+import org.academiadecodigo.bootcamp.Client;
+import org.academiadecodigo.bootcamp.Navigation;
 
 import java.io.IOException;
 import java.net.URL;
@@ -9,7 +11,7 @@ import java.util.ResourceBundle;
 /**
  * Created by ruimorais on 02/07/17.
  */
-public class GridController implements Initializable {
+public class OldGridController implements Initializable {
 
     private Client client;
 

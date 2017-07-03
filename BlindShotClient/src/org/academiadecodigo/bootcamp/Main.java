@@ -19,7 +19,7 @@ public class Main extends Application {
 
         Navigation.getInstance().setClient(client);
         Navigation.getInstance().setStage(primaryStage);
-        Navigation.getInstance().loadScreen("grid");
+        Navigation.getInstance().loadScreen("menu");
         primaryStage.setResizable(false);
 
     }

@@ -3,8 +3,13 @@ package org.academiadecodigo.bootcamp;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.academiadecodigo.bootcamp.controller.GridController;
+import org.academiadecodigo.bootcamp.controller.MenuController;
+import org.academiadecodigo.bootcamp.controller.OldGridController;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,13 +52,13 @@ public final class Navigation {
 
         try {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("grid.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/" + view + ".fxml"));
 
             GridPane root = fxmlLoader.load();
 
-            GridController gridController = fxmlLoader.getController();
+            //MenuController menuController = fxmlLoader.getController();
 
-            controllers.put(view, gridController);
+            //controllers.put(view, menuController);
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
@@ -74,5 +79,9 @@ public final class Navigation {
 
     public Client getClient() {
         return client;
+    }
+
+    public Map<String, Initializable> getControllers() {
+        return controllers;
     }
 }
