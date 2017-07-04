@@ -21,8 +21,8 @@ public final class Navigation {
     private static Navigation navigation = null;
     private Stage stage;
     private Scene scene;
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 600;
+    public static final int WIDTH = 1000;
+    public static final int HEIGHT = 700;
     GridPane root;
 
     private Map<String, Initializable> controllers = new HashMap<>();
