@@ -12,7 +12,7 @@ import java.net.Socket;
  */
 public class Server {
 
-    public static final int NUMBER_OF_PLAYERS = 3;
+    public static final int NUMBER_OF_PLAYERS = 2;
     private ServerSocket serverSocket;
     private Socket[] clientSockets;
     private Thread[] threads;
@@ -113,9 +113,7 @@ public class Server {
                 for (Socket socket : clientSockets) {
                     try {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        out.write(Integer.toString((turn+1))+"\n");
-                        out.flush();
-                        out.write(attack + "\n");
+                        out.write(Integer.toString((turn+1)) + " | " + attack + "\n");
                         out.flush();
                         System.out.println("turn: " + (turn+1));
 

@@ -37,9 +37,11 @@ public class GridController implements Initializable {
     private boolean atackMode = false;
 
     private Client client;
+
     @FXML
     private GridPane grid;
 
+    @FXML
     private Circle PlayerCircle;
 
     private int turn = 1;
@@ -90,13 +92,14 @@ public class GridController implements Initializable {
      */
 
     private void onClickAtack(MouseEvent event) {
+        System.out.println("ffff");
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
-        showMessage("Player 1 | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         turn++;
         System.out.println(turn);
         try {
-            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,10 +117,10 @@ public class GridController implements Initializable {
             Node element = event.getPickResult().getIntersectedNode();
             grid.getChildren().remove(PlayerCircle);
             grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
-            showMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+            showMessage("Player 1 | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
 
             try {
-                client.sendMessage("Player " + client.getPlayer() + " | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
                 System.out.println("send");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -317,15 +320,38 @@ public class GridController implements Initializable {
                 try {
                     BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
                     message = in.readLine();
-                    System.out.println(message);
+                    String[] divide;
+                    divide = message.split(" \\| ");
                     if (number == 1) {
-                        turn = Integer.parseInt(message);
+                        turn = Integer.parseInt(divide[0]);
                     }
                     number++;
+
+                    for (String s : divide) {
+                        System.out.println(s);
+                    }
+                    System.out.println(Integer.parseInt(divide[4]));
+                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]),Integer.parseInt(divide[6]));
+                    element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
                     System.out.println(message);
                     System.out.println("turn: " + turn);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+                clearAttacks();
+            }
+        }
+
+        public void clearAttacks() {
+            for (Node node : myGridElements) {
+                if (node instanceof Pane) {
+                    node.setStyle("-fx-background-color: black;-fx-border-color: white");
                 }
             }
         }
