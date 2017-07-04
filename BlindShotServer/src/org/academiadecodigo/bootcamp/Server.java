@@ -18,6 +18,7 @@ public class Server {
     private Thread[] threads;
     private int turn = 0;
     private Point players[] = new Point[NUMBER_OF_PLAYERS];
+    private Point attack;
 
     public void init() throws IOException {
 
@@ -68,6 +69,10 @@ public class Server {
 
                 message = in.readLine();
                 System.out.println(message);
+                String[] string = message.split(" ");
+                for (int j = 0; j < players.length; j++) {
+                    players[j] = new Point(Integer.parseInt(string[3]), Integer.parseInt(string[5]));
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -99,10 +104,16 @@ public class Server {
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
 
                 move = in.readLine();
+                String[] moves = move.split(" ");
                 System.out.println(move);
+                players[turn] = new Point(Integer.parseInt(moves[7]), (Integer.parseInt(moves[11])));
 
                 attack = in.readLine();
                 System.out.println(attack);
+
+                String[] attacks = attack.split(" ");
+                this.attack = new Point(Integer.parseInt(attacks[7]),(Integer.parseInt(attacks[11])));
+                attackRecieve();
 
                 turn++;
 
@@ -114,6 +125,7 @@ public class Server {
                     try {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         out.write(Integer.toString((turn+1)) + " | " + attack + "\n");
+
                         out.flush();
                         System.out.println("turn: " + (turn+1));
 
@@ -126,6 +138,17 @@ public class Server {
             }
 
         }
+    }
+
+    public void attackRecieve() {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY()) {
+                System.out.println("Pissos");
+                return;
+            }
+
+        }
+        System.out.println("conas");
     }
 
 }

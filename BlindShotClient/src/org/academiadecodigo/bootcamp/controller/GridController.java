@@ -226,7 +226,7 @@ public class GridController implements Initializable {
     }
 
     private void seeWereCanPlayerGo() {
-        int PlayerWalker = 2;
+        int PlayerWalker = 5;
         int Prow = getMyPlayerCoordenates().get("Row").intValue();
         int Pcolumn = getMyPlayerCoordenates().get("Column").intValue();
 
@@ -263,7 +263,7 @@ public class GridController implements Initializable {
     }
 
     private void atack() {
-        int AtakLenght = 5;
+        int AtakLenght = 1;
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
         int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
 
@@ -315,17 +315,13 @@ public class GridController implements Initializable {
         public void run() {
             System.out.println("thread turnMessage");
             String message;
-            int number = 1;
             while (true) {
                 try {
                     BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
                     message = in.readLine();
                     String[] divide;
                     divide = message.split(" \\| ");
-                    if (number == 1) {
-                        turn = Integer.parseInt(divide[0]);
-                    }
-                    number++;
+                    turn = Integer.parseInt(divide[0]);
 
                     for (String s : divide) {
                         System.out.println(s);
