@@ -312,12 +312,16 @@ public class GridController implements Initializable {
         public void run() {
             System.out.println("thread turnMessage");
             String message;
+            int number = 1;
             while (true) {
                 try {
                     BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
                     message = in.readLine();
                     System.out.println(message);
-                    turn = Integer.parseInt(message);
+                    if (number == 1) {
+                        turn = Integer.parseInt(message);
+                    }
+                    number++;
                     System.out.println(message);
                     System.out.println("turn: " + turn);
                 } catch (IOException e) {

@@ -34,7 +34,7 @@ public class MenuController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         client = Navigation.getInstance().getClient();
-        playButton.setText("Submit");
+//        playButton.setText("Submit");
     }
 
     @FXML
@@ -46,6 +46,7 @@ public class MenuController implements Initializable {
                 client.sendMessage(playerMessage.getText());
                 serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
                 playButton.setText("Play");
+                playerMessage.setVisible(false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -57,7 +58,6 @@ public class MenuController implements Initializable {
         else {
             client.sendMessage("I'm ready");
             client.receiveMessage();
-            playerMessage.setVisible(false);
             playButton.setVisible(false);
             serverMessage.setText("Waiting for other players to connect...");
             new Thread(new Waiting(client.getClientSocket())).start();

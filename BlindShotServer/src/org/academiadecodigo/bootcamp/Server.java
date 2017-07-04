@@ -114,7 +114,8 @@ public class Server {
                     try {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                         out.write(Integer.toString((turn+1))+"\n");
-                        //out.write(attack + "\n");
+                        out.flush();
+                        out.write(attack + "\n");
                         out.flush();
                         System.out.println("turn: " + (turn+1));
 
