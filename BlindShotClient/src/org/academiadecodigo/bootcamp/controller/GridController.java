@@ -1,9 +1,6 @@
 package org.academiadecodigo.bootcamp.controller;
 
-import javafx.animation.PauseTransition;
-import javafx.animation.ScaleTransition;
-import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.*;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -12,15 +9,20 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.Service.MessageService;
-import org.academiadecodigo.bootcamp.Service.ServiceRegistry;
+import org.academiadecodigo.bootcamp.Client;
+import org.academiadecodigo.bootcamp.Navigation;
 
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 
@@ -32,11 +34,14 @@ public class GridController implements Initializable {
     //AtackMode Boolean true if is the Player turn to attack
     private boolean atackMode = false;
 
-    private MessageService messageService;
+    private Client client;
+
     @FXML
     private GridPane grid;
 
     private Circle PlayerCircle;
+
+    private int turn = 1;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -84,58 +89,67 @@ public class GridController implements Initializable {
      */
 
     private void onClickAtack(MouseEvent event) {
+        System.out.println("ffff");
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
-        showMessage("Player 1 | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
-        atackMode = !atackMode;
+        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+        turn++;
+        System.out.println(turn);
         try {
-            messageService.sendMessage("Player 1 | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
         clearEnablePanes();
-    }
-
-    /**
-     * Method that change the player Node Position, to cell that previous been clicked
-     */
-    private void onClickchangePlayerPosition(MouseEvent event) {
-        Node element = event.getPickResult().getIntersectedNode();
-        grid.getChildren().remove(PlayerCircle);
-        grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
-        showMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
         atackMode = !atackMode;
-        try {
-            messageService.sendMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        clearEnablePanes();
-
     }
-
 
     /**
      * First Method to be read - get the service for mesage handler
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.messageService = (MessageService) ServiceRegistry.getInstance().getService("Mensage");
+        client = Navigation.getInstance().getClient();
         this.myGridElements = grid.getChildren();
+        System.out.println("grid loaded");
+        new Thread(new turnMessage()).start();
 
 
         createGridElements();
         createPlayerObject();
 
-        if (messageService.getPlayerName() == null){
-            showMessage("Welcome : Anonimous");
-        } else {
-            showMessage("Welcome : " + messageService.getPlayerName());
+    }
+
+    /**
+     * Method that change the player Node Position, to cell that previous been clicked
+     */
+    private void onClickchangePlayerPosition(MouseEvent event) {
+        System.out.println(turn);
+
+        if (turn == client.getPlayer()) {
+            Node element = event.getPickResult().getIntersectedNode();
+            grid.getChildren().remove(PlayerCircle);
+            grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
+            showMessage("Player 1 | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+
+            try {
+                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+                System.out.println("send");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            clearEnablePanes();
+            atackMode = !atackMode;
+        }
+        else {
+            showMessage("It's not your turn, MOTHERFUCKER!!!");
         }
 
-
+        if (turn == Client.numberOfPlayers + 1) {
+            turn = 1;
+        }
     }
 
     /**
@@ -148,13 +162,14 @@ public class GridController implements Initializable {
         PlayerCircle.setStyle("-fx-background-color: blue");
         PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
         PlayerCircle.setFocusTraversable(true);
-
-        /*
-        * choose between createRandomPlayerPosition : to create random position
-        *   or choose createPlayerPosition(int row,int column) : to create costum position
-        * */
-        createRandomPlayerPosition();
-
+        int column = (int) (Math.random() * grid.getColumnConstraints().size());
+        int row = (int) (Math.random() * grid.getRowConstraints().size());
+        grid.add(PlayerCircle, column, row);
+        try {
+            client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         grid.setHalignment(PlayerCircle, HPos.CENTER);
 
         PlayerCircle.setOnMouseEntered(onHoverPlayer);
@@ -173,10 +188,11 @@ public class GridController implements Initializable {
     /**
      * Create jafafx object that represent the player an insert on grid
      */
-    public void createPlayerPosition(int row,int column) {
+    public void createPlayerPosition(int row, int column) {
         grid.add(PlayerCircle, row, column);
 
     }
+
     /**
      * Clear grid cells that been painted to highlight the path
      */
@@ -244,8 +260,8 @@ public class GridController implements Initializable {
      */
     private void seeWereCanPlayerGo() {
         int PlayerWalker = 2;
-        int Prow = getMyPlayerCoordenates().get("Row").intValue();
-        int Pcolumn = getMyPlayerCoordenates().get("Column").intValue();
+        int Prow = getMyPlayerCoordenates().get("Row");
+        int Pcolumn = getMyPlayerCoordenates().get("Column");
 
         highLightPath(PlayerWalker, Prow, Pcolumn, "red");
     }
@@ -284,23 +300,20 @@ public class GridController implements Initializable {
         }
     }
 
-    /**
-     *  Create the highlight to see were the player is able to atack. Atack mode
-     */
+
+
+
+
 
     private void atack() {
-        int AtakLenght = 5;
+        int AtakLenght = 1;
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
         int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
 
         highLightPath(AtakLenght, PlayerRow, PlayerColumn, "orange");
     }
 
-    /**
-     *  Get the element selected on that especific cell
-     */
-
-    public Node getNodeByRowColumnIndex(final int row, final int column) {
+    public Node getNodeByRowColumnIndex(int row, int column) {
         Node result = null;
         for (Node node : myGridElements) {
             if ((row <= grid.getRowConstraints().size() && row >= 0) || (column <= grid.getColumnConstraints().size() && column >= 0)) {
@@ -317,7 +330,7 @@ public class GridController implements Initializable {
     }
 
     /**
-     *  show message on top left corner
+     * show message on top left corner
      */
     public void showMessage(String message) {
         BorderPane rec = new BorderPane(new Text(message));
@@ -331,18 +344,17 @@ public class GridController implements Initializable {
         TranslateTransition aa = new TranslateTransition(Duration.millis(1000), rec);
         aa.setByY(150);
         TranslateTransition bb = new TranslateTransition(Duration.millis(1000), rec);
-        bb.setByY(- 150);
+        bb.setByY(-150);
 
-        SequentialTransition seqTransition = new SequentialTransition (aa ,pt,bb);
+        SequentialTransition seqTransition = new SequentialTransition(aa, pt, bb);
 
         seqTransition.play();
-
 
 
     }
 
     /**
-     *  show message on center - Zoom animation
+     * show message on center - Zoom animation
      */
     public void popUpMessage(String message) {
         BorderPane pop = new BorderPane(new Text(message));
@@ -360,8 +372,53 @@ public class GridController implements Initializable {
         bb.setByX(-2f);
         bb.setByY(-2f);
 
-        SequentialTransition seqTransition = new SequentialTransition (aa ,pp,bb);
+        SequentialTransition seqTransition = new SequentialTransition(aa, pp, bb);
 
         seqTransition.play();
+    }
+    private class turnMessage implements Runnable {
+
+        @Override
+        public void run() {
+            System.out.println("thread turnMessage");
+            String message;
+            while (true) {
+                try {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
+                    message = in.readLine();
+                    String[] divide;
+                    divide = message.split(" \\| ");
+                    turn = Integer.parseInt(divide[0]);
+
+                    for (String s : divide) {
+                        System.out.println(s);
+                    }
+                    System.out.println(Integer.parseInt(divide[4]));
+                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]),Integer.parseInt(divide[6]));
+                    element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
+                    System.out.println(message);
+                    System.out.println("turn: " + turn);
+
+
+                    Timeline timeline = new Timeline(new KeyFrame(
+                            Duration.millis(5000),
+                            ae -> clearAttacks()));
+                    timeline.play();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
+        public void clearAttacks() {
+            System.out.println("clear attacks timeout");
+            for (Node node : myGridElements) {
+                if (node instanceof Pane) {
+                    node.setStyle("-fx-background-color: black;-fx-border-color: white");
+                }
+            }
+        }
     }
 }

@@ -1,100 +1,163 @@
 package org.academiadecodigo.bootcamp;
 
+import javafx.geometry.Pos;
+
+import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Scanner;
 
 /**
- * Created by codecadet on 28/06/17.
+ * Created by ruimorais on 02/07/17.
  */
 public class Server {
 
-    private ServerSocket socket;
-    private Map<Integer, Socket> clients;
-    private String message;
+    public static final int NUMBER_OF_PLAYERS = 2;
+    private ServerSocket serverSocket;
+    private Socket[] clientSockets;
+    private Thread[] threads;
+    private int turn = 0;
+    private Point players[] = new Point[NUMBER_OF_PLAYERS];
+    private Point attack;
 
-    public Server(Map<Integer, Socket> clients) {
+    public void init() throws IOException {
 
-        this.clients = clients;
+        serverSocket = new ServerSocket(6666);
+        clientSockets = new Socket[NUMBER_OF_PLAYERS];
+        threads = new Thread[NUMBER_OF_PLAYERS];
 
     }
 
-    public void acceptClient(int players) throws IOException {
+    public void start() throws IOException, InterruptedException {
 
-        int i = 0;
-
-        while (clients.size() < players) {
-
-            Socket clientSocket = socket.accept();
-            System.out.println(clientSocket.isConnected());
-            clients.put(i, clientSocket);
-
-            PrintStream out = new PrintStream(clientSocket.getOutputStream());
-
-            out.println("Welcome player " + i);
-
-            i++;
-
+        for (int i = 0; i < clientSockets.length; i++) {
+            clientSockets[i] = serverSocket.accept();
+            threads[i] = new Thread(new PreGameChat(clientSockets[i], i));
+            threads[i].start();
         }
+
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        startGame();
     }
 
-    public void socketConnect() throws IOException {
-        socket = new ServerSocket(9999);
+    public void startGame() throws IOException {
+
+        System.out.println("kk");
+
+        for (Socket socket : clientSockets) {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write("Let the games begin! \n");
+            out.flush();
+        }
+
+        receivePlayersPosition();
+        startGameChat();
+
+        //createPlayers();
+
     }
 
-    public void messageHandle() throws IOException {
+    public String receivePlayersPosition() {
 
-        int i = 0;
+        String message = null;
 
+        for (int i = 0; i < clientSockets.length; i++) {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[i].getInputStream()));
 
-        while (i < clients.size()) {
+                message = in.readLine();
+                System.out.println(message);
+                String[] string = message.split(" ");
+                for (int j = 0; j < players.length; j++) {
+                    players[j] = new Point(Integer.parseInt(string[3]), Integer.parseInt(string[5]));
+                }
 
-            read(i);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-            //Insert GameLogicHere
+        //convert String to Point
+        //players[0] = new Point(collumn, row);
 
-            if (i  == (clients.size()-1)) {
-                i = 0;
-                continue;
+        return message;
+    }
+
+    public void gameChat() {
+        //recebe uma string com a informação acerca de para onde o jogador se moveu e onde atacou; atualiza a sua posiçao
+    }
+
+    public void comparePlayers() {
+        //compara a posiçao dos dois jogadores depois de um jogar
+    }
+
+    public void startGameChat() {
+
+        while (turn < clientSockets.length) {
+
+            String move;
+            String attack;
+
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
+
+                move = in.readLine();
+                String[] moves = move.split(" ");
+                System.out.println(move);
+                players[turn] = new Point(Integer.parseInt(moves[7]), (Integer.parseInt(moves[11])));
+
+                attack = in.readLine();
+                System.out.println(attack);
+
+                String[] attacks = attack.split(" ");
+                this.attack = new Point(Integer.parseInt(attacks[7]),(Integer.parseInt(attacks[11])));
+                attackRecieve();
+
+                turn++;
+
+                if (turn == clientSockets.length) {
+                    turn = 0;
+                }
+
+                for (Socket socket : clientSockets) {
+                    try {
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        out.write(Integer.toString((turn+1)) + " | " + attack + "\n");
+
+                        out.flush();
+                        System.out.println("turn: " + (turn+1));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            i++;
-
         }
     }
 
-    private void write(int i) throws IOException {
+    public void attackRecieve() {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY()) {
+                for (Socket socket : clientSockets) {
+                    try {
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        out.write("Morres-te" + "\n");
+                        out.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-        BufferedWriter bwriter;
-
-        for (int j = 0; j < clients.size(); j++) {
-            if (j == i) {
-                continue;
+                }
+                return;
             }
 
-            bwriter = new BufferedWriter(new OutputStreamWriter(clients.get(j).getOutputStream()));
-
-            bwriter.write(message);
-
-            bwriter.flush();
-
         }
-
-    }
-
-    private void read(int i) throws IOException {
-
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(clients.get(i).getInputStream()));
-
-        message = bReader.readLine() + "\n";
-
-        //System.out.println(message);
-
-        write(i);
-
+        System.out.println("conas");
     }
 
 }

@@ -1,116 +1,74 @@
 package org.academiadecodigo.bootcamp;
 
-import javafx.fxml.Initializable;
-import org.academiadecodigo.bootcamp.controller.GridController;
-import org.academiadecodigo.bootcamp.utils.Navigation;
+import javafx.application.Platform;
+import org.academiadecodigo.bootcamp.controller.MenuController;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 /**
- * Created by codecadet on 28/06/17.
+ * Created by ruimorais on 02/07/17.
  */
-/*
 public class Client implements Runnable {
 
-    private final int port = 9999;
-    private final String host = "localhost";
     private Socket clientSocket;
-    private String playerName;
-    private int i = 0;
+    private BufferedWriter out;
+    private BufferedReader in;
     private int player;
-    private int turn = 0;
-    private int numberOfPlayers = 2;
-
-    private String move;
+    public static final int numberOfPlayers = 3;
 
     @Override
     public void run() {
+
         try {
-            connect();
+            connectToServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void connect() throws IOException {
-
-        clientSocket = new Socket(host, port);
-
-        recieveMessage();
-
-        while (true) {
-
-            if (turn == numberOfPlayers) {
-                turn = 0;
-            }
-
-            System.out.println("turn: " + turn);
-
-            System.out.println(player + numberOfPlayers + 1);
-
-            if (turn == player) {
-
-
-                System.out.println(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove());
-
-                sendMessage(((GridController) Navigation.getInstance().getControllers().get("grid")).getMove() + "\n");
-
-
-                turn++;
-            } else {
-
-                recieveMessage();
-
-                turn++;
-            }
-
-        }
+    public void connectToServer() throws IOException {
+        clientSocket = new Socket("localhost", 6666); // conecta o cliente ao servidor
+        waitForServerMessage(); // fica a espera da primeira mensagem do servidor, que lhe atribui o numero do player
     }
 
-    public void recieveMessage() throws IOException {
-
-        BufferedReader bReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String message = bReader.readLine();
-
-        if (i == 0) {
-            player = Integer.parseInt(message.substring(message.length() - 1));
-            System.out.println("player: " + player);
+    public void waitForServerMessage() {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String message;
+            message = in.readLine();
+            player = Integer.parseInt(message);
+            System.out.println(player);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        i++;
-
     }
 
     public void sendMessage(String message) throws IOException {
-
-        System.out.println("send");
-
-        BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-        //Scanner scanner = new Scanner(System.in);
-
-        bWriter.write(message);
-
-        bWriter.flush();
-
+        System.out.println("sen");
+        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        out.write(message + "\n");
+        out.flush();
     }
 
-    public Socket getSocket() {
-        return clientSocket;
+    public void receiveMessage() {
+        System.out.println("receive");
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String message;
+            message = in.readLine();
+            System.out.println(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getPlayer() {
         return player;
     }
 
-    public String getMove() {
-        return move;
-    }
-
-    public void setMove(String move) {
-        this.move = move;
+    public Socket getClientSocket() {
+        return clientSocket;
     }
 }
-*/

@@ -1,15 +1,13 @@
-package org.academiadecodigo.bootcamp.utils;
+package org.academiadecodigo.bootcamp;
 
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import org.academiadecodigo.bootcamp.controller.GridController;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,18 +19,10 @@ public final class Navigation {
     private static Navigation navigation = null;
     private Stage stage;
     private Scene scene;
-    public static final int WIDTH = 1000;
-    public static final int HEIGHT = 700;
-    GridPane root;
-
+    public static final int WIDTH = 860;
+    public static final int HEIGHT = 600;
     private Map<String, Initializable> controllers = new HashMap<>();
-
-    private BufferedReader in = null;
-    private PrintStream out = null;
-    private static Socket clientSocket = null;
-
-
-    private int turn = 0;
+    private Client client;
 
     private Navigation() {
 
@@ -58,13 +48,12 @@ public final class Navigation {
 
         try {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../view/"+ view +".fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/"+ view +".fxml"));
 
-            root = fxmlLoader.load();
+            GridPane root = fxmlLoader.load();
 
-            //GridController gridController = fxmlLoader.getController();
+            root.getStylesheets().add("/css/style.css");
 
-            //controllers.put(view, gridController);
 
             scene = new Scene(root, WIDTH, HEIGHT);
             setScene(scene);
@@ -79,33 +68,12 @@ public final class Navigation {
         stage.show();
     }
 
-    public Scene getScene() {
-        return scene;
+    public void setClient(Client client) {
+        this.client = client;
     }
 
-
-    public void setClientSocket(Socket clientSocket) {
-        this.clientSocket = clientSocket;
-    }
-
-    public Socket getClientSocket() {
-        return clientSocket;
-    }
-
-    public BufferedReader getIn() {
-        return in;
-    }
-
-    public PrintStream getOut() {
-        return out;
-    }
-
-    public void setTurn(int turn) {
-        this.turn = turn;
-    }
-
-    public int getTurn() {
-        return turn;
+    public Client getClient() {
+        return client;
     }
 
     public Map<String, Initializable> getControllers() {
