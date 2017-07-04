@@ -15,6 +15,7 @@ public class Client implements Runnable {
     private BufferedWriter out;
     private BufferedReader in;
     private int player;
+    public static final int numberOfPlayers = 3;
 
     @Override
     public void run() {
@@ -44,7 +45,7 @@ public class Client implements Runnable {
     }
 
     public void sendMessage(String message) throws IOException {
-        System.out.println("send");
+        System.out.println("sen");
         out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         out.write(message + "\n");
         out.flush();

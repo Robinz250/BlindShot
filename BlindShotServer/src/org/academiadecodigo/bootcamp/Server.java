@@ -12,7 +12,7 @@ import java.net.Socket;
  */
 public class Server {
 
-    public static final int NUMBER_OF_PLAYERS = 2;
+    public static final int NUMBER_OF_PLAYERS = 3;
     private ServerSocket serverSocket;
     private Socket[] clientSockets;
     private Thread[] threads;
@@ -29,14 +29,15 @@ public class Server {
 
     public void start() throws IOException, InterruptedException {
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < clientSockets.length; i++) {
             clientSockets[i] = serverSocket.accept();
             threads[i] = new Thread(new PreGameChat(clientSockets[i], i));
             threads[i].start();
         }
 
-        threads[0].join();
-        threads[1].join();
+        for (Thread thread : threads) {
+            thread.join();
+        }
         startGame();
     }
 
@@ -49,19 +50,34 @@ public class Server {
             out.write("Let the games begin! \n");
             out.flush();
         }
+
+        receivePlayersPosition();
         startGameChat();
 
         //createPlayers();
 
     }
 
-    public void createPlayers(String position) {
+    public String receivePlayersPosition() {
+
+        String message = null;
+
+        for (int i = 0; i < clientSockets.length; i++) {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[i].getInputStream()));
+
+                message = in.readLine();
+                System.out.println(message);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         //convert String to Point
         //players[0] = new Point(collumn, row);
 
-        startGameChat();
-
+        return message;
     }
 
     public void gameChat() {
@@ -76,21 +92,35 @@ public class Server {
 
         while (turn < clientSockets.length) {
 
-            String message;
-            BufferedReader in = null;
+            String move;
+            String attack;
+
             try {
-                in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
 
-                message = in.readLine();
-                System.out.println(message);
+                move = in.readLine();
+                System.out.println(move);
 
-                message = in.readLine();
-                System.out.println(message);
+                attack = in.readLine();
+                System.out.println(attack);
 
                 turn++;
 
                 if (turn == clientSockets.length) {
                     turn = 0;
+                }
+
+                for (Socket socket : clientSockets) {
+                    try {
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        out.write(Integer.toString((turn+1))+"\n");
+                        //out.write(attack + "\n");
+                        out.flush();
+                        System.out.println("turn: " + (turn+1));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -20,7 +20,9 @@ import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class GridController implements Initializable {
     private GridPane grid;
 
     private Circle PlayerCircle;
+
+    private int turn = 1;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -89,6 +93,8 @@ public class GridController implements Initializable {
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
         showMessage("Player 1 | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+        turn++;
+        System.out.println(turn);
         try {
             client.sendMessage("Player " + client.getPlayer() + " | Attack | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
         } catch (IOException e) {
@@ -102,20 +108,32 @@ public class GridController implements Initializable {
      * Method that change the player Node Position, to cell that previous been clicked
      */
     private void onClickchangePlayerPosition(MouseEvent event) {
-        Node element = event.getPickResult().getIntersectedNode();
-        grid.getChildren().remove(PlayerCircle);
-        grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
-        showMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+        System.out.println(turn);
 
-        try {
-            client.sendMessage("Player " + client.getPlayer() + " | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (turn == client.getPlayer()) {
+            Node element = event.getPickResult().getIntersectedNode();
+            grid.getChildren().remove(PlayerCircle);
+            grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
+            showMessage("Player 1 | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+
+            try {
+                client.sendMessage("Player " + client.getPlayer() + " | Move | Row : " + grid.getRowIndex(element) + " | Column : " + grid.getColumnIndex(element));
+                System.out.println("send");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            clearEnablePanes();
+            atackMode = !atackMode;
+        }
+        else {
+            showMessage("It's not your turn, MOTHERFUCKER!!!");
         }
 
-
-        clearEnablePanes();
-        atackMode = !atackMode;
+        if (turn == Client.numberOfPlayers + 1) {
+            turn = 1;
+        }
     }
 
 
@@ -127,7 +145,8 @@ public class GridController implements Initializable {
         //this.messageService = (MessageService) ServiceRegistry.getInstance().getService("Mensage");
         client = Navigation.getInstance().getClient();
         this.myGridElements = grid.getChildren();
-
+        System.out.println("grid loaded");
+        new Thread(new turnMessage()).start();
 
         createGridElements();
         createPlayerCircleAndPosition();
@@ -141,7 +160,14 @@ public class GridController implements Initializable {
         PlayerCircle.setStyle("-fx-background-color: blue");
         PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
         PlayerCircle.setFocusTraversable(true);
-        grid.add(PlayerCircle, (int) (Math.random() * grid.getColumnConstraints().size()), (int) (Math.random() * grid.getRowConstraints().size()));
+        int column = (int) (Math.random() * grid.getColumnConstraints().size());
+        int row = (int) (Math.random() * grid.getRowConstraints().size());
+        grid.add(PlayerCircle, column, row);
+        try {
+            client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         grid.setHalignment(PlayerCircle, HPos.CENTER);
 
         PlayerCircle.setOnMouseEntered(onHoverPlayer);
@@ -278,5 +304,26 @@ public class GridController implements Initializable {
             wait.playFromStart();
         });
         wait.play();
+    }
+
+    private class turnMessage implements Runnable {
+
+        @Override
+        public void run() {
+            System.out.println("thread turnMessage");
+            String message;
+            while (true) {
+                try {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
+                    message = in.readLine();
+                    System.out.println(message);
+                    turn = Integer.parseInt(message);
+                    System.out.println(message);
+                    System.out.println("turn: " + turn);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
