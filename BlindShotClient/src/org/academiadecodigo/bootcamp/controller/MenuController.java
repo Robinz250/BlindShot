@@ -40,6 +40,7 @@ public class MenuController implements Initializable {
     @FXML
     public void playerMessage() throws IOException {
 
+        // se o botão disser "submit", envia mensagem para o servidor com o nome do player, escrito no textfield
         if (playButton.getText().equals("Submit")) {
             try {
                 client.sendMessage(playerMessage.getText());
@@ -49,14 +50,18 @@ public class MenuController implements Initializable {
                 e.printStackTrace();
             }
         }
+
+        // depois de enviado o nome, o butão de "submit" transforma-se em "play"; ao ser clickado, o cliente envia uma
+        // mensagem ao servidor a informar que está pronto para jogar; recebe mensagem do servidor a dizer que ta a espera que os outros clientes respondam
+        // cria uma nova thread que fica a espera da mensagem do servidor para começar o jogo, e que faz load da view do jogo qd a recebe
         else {
-            client.sendMessage("fff");
+            client.sendMessage("I'm ready");
             client.receiveMessage();
             playerMessage.setVisible(false);
             playButton.setVisible(false);
             serverMessage.setText("Waiting for other players to connect...");
-            //client.waitForServerMessage();
             new Thread(new Waiting(client.getClientSocket())).start();
+            System.out.println((client.getPlayer()));
         }
     }
 }

@@ -20,11 +20,11 @@ public class Waiting implements Runnable {
 
     @Override
     public void run() {
-            BufferedReader in = null;
             try {
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String message;
                 message = in.readLine();
+                System.out.println("waiting");
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {

@@ -21,16 +21,14 @@ public class Client implements Runnable {
 
         try {
             connectToServer();
-            //startChat();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void connectToServer() throws IOException {
-        clientSocket = new Socket("localhost", 6666);
-        System.out.println("waiting for server message");
-        waitForServerMessage();
+        clientSocket = new Socket("localhost", 6666); // conecta o cliente ao servidor
+        waitForServerMessage(); // fica a espera da primeira mensagem do servidor, que lhe atribui o numero do player
     }
 
     public void waitForServerMessage() {

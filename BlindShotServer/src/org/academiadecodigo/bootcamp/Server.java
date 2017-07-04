@@ -49,6 +49,7 @@ public class Server {
             out.write("Let the games begin! \n");
             out.flush();
         }
+        startGameChat();
 
         //createPlayers();
 
@@ -63,6 +64,14 @@ public class Server {
 
     }
 
+    public void gameChat() {
+        //recebe uma string com a informação acerca de para onde o jogador se moveu e onde atacou; atualiza a sua posiçao
+    }
+
+    public void comparePlayers() {
+        //compara a posiçao dos dois jogadores depois de um jogar
+    }
+
     public void startGameChat() {
 
         while (turn < clientSockets.length) {
@@ -72,10 +81,12 @@ public class Server {
             try {
                 in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
 
-                while ((message = in.readLine()) == null) {
-                    message = in.readLine();
-                }
+                message = in.readLine();
                 System.out.println(message);
+
+                message = in.readLine();
+                System.out.println(message);
+
                 turn++;
 
                 if (turn == clientSockets.length) {
