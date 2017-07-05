@@ -1,6 +1,7 @@
 package org.academiadecodigo.bootcamp.controller;
 
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -390,10 +391,24 @@ public class GridController implements Initializable {
                     divide = message.split(" \\| ");
                     turn = Integer.parseInt(divide[0]);
 
+                    if (turn == 0) {
+
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                Navigation.getInstance().loadScreen("gameOver");
+                            }
+                        });
+
+
+                        //client.getClientSocket().close();
+                        return;
+                    }
+
                     for (String s : divide) {
                         System.out.println(s);
                     }
-                    System.out.println(Integer.parseInt(divide[4]));
+
                     Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]),Integer.parseInt(divide[6]));
                     element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
                     System.out.println(message);

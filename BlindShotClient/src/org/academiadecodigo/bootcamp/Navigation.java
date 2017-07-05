@@ -2,6 +2,7 @@ package org.academiadecodigo.bootcamp;
 
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -50,7 +51,7 @@ public final class Navigation {
 
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/"+ view +".fxml"));
 
-            GridPane root = fxmlLoader.load();
+            Parent root = fxmlLoader.load();
 
             root.getStylesheets().add("/css/style.css");
 

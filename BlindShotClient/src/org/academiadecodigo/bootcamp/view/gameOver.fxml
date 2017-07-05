@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+
+<GridPane alignment="CENTER" prefHeight="600.0" prefWidth="800.0" styleClass="gameBg" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.academiadecodigo.bootcamp.controller.GameOverController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+        <Button mnemonicParsing="false" prefHeight="65.0" prefWidth="154.0" text="Quit" translateX="90.0" translateY="160.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <font>
+                <Font size="31.0" />
+            </font>
+        </Button>
+        <Label alignment="CENTER" prefHeight="130.0" prefWidth="619.0" text="The winner is" textAlignment="CENTER" textFill="#81bce4" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <font>
+                <Font name="DejaVu Sans Mono Bold" size="52.0" />
+            </font>
+        </Label>
+        <Button contentDisplay="CENTER" mnemonicParsing="false" prefHeight="65.0" prefWidth="154.0" text="Restart" translateX="-90.0" translateY="160.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <font>
+                <Font size="31.0" />
+            </font>
+        </Button>
+   </children>
+</GridPane>

@@ -146,18 +146,15 @@ public class Server {
                 for (Socket socket : clientSockets) {
                     try {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        out.write("Morres-te" + "\n");
+                        out.write("0 | " + "morreste" + "\n");
                         out.flush();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                 }
-                return;
             }
 
         }
-        System.out.println("conas");
     }
 
 }

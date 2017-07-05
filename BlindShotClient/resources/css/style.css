@@ -4,3 +4,10 @@
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
 }
+
+.gameBg{
+    -fx-background-image : url("../images/startmenu.jpg");
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
