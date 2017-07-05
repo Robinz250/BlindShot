@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.layout.BorderPane;
@@ -21,6 +22,7 @@ import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,6 +45,8 @@ public class GridController implements Initializable {
     private Circle PlayerCircle;
 
     private int turn = 1;
+
+    private String winOrLose;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -143,8 +147,7 @@ public class GridController implements Initializable {
 
             clearEnablePanes();
             atackMode = !atackMode;
-        }
-        else {
+        } else {
             showMessage("It's not your turn, MOTHERFUCKER!!!");
         }
 
@@ -302,10 +305,6 @@ public class GridController implements Initializable {
     }
 
 
-
-
-
-
     private void atack() {
         int AtakLenght = 1;
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
@@ -377,6 +376,7 @@ public class GridController implements Initializable {
 
         seqTransition.play();
     }
+
     private class turnMessage implements Runnable {
 
         @Override
@@ -390,6 +390,9 @@ public class GridController implements Initializable {
                     String[] divide;
                     divide = message.split(" \\| ");
                     turn = Integer.parseInt(divide[0]);
+                    winOrLose = divide[7];
+
+                    winOrLose();
 
                     if (turn == 0) {
 
@@ -409,7 +412,7 @@ public class GridController implements Initializable {
                         System.out.println(s);
                     }
 
-                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]),Integer.parseInt(divide[6]));
+                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
                     element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
                     System.out.println(message);
                     System.out.println("turn: " + turn);
@@ -419,11 +422,34 @@ public class GridController implements Initializable {
                             Duration.millis(5000),
                             ae -> clearAttacks()));
                     timeline.play();
+//                    message = in.readLine();
+//                    System.out.println(message);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
+            }
+        }
+
+        private void winOrLose() {
+            if (winOrLose.equals("YOU LOOSE")) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Navigation.getInstance().loadScreen("gameOver");
+
+                    }
+                });
+                System.out.println(winOrLose);
+            } else if (winOrLose.equals("YOU WIN")) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Navigation.getInstance().loadScreen("gameOver");
+                    }
+                });
+                System.out.println(winOrLose);
             }
         }
 
