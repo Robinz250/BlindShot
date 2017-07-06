@@ -117,9 +117,6 @@ public class GridController implements Initializable {
         this.myGridElements = grid.getChildren();
         System.out.println("grid loaded");
         new Thread(new turnMessage()).start();
-
-        System.out.println(avatar.getKillRange());
-        System.out.println(avatar.toString());
         createGridElements();
         createPlayerObject();
 
@@ -268,7 +265,7 @@ public class GridController implements Initializable {
      * Create the highlight to see were the player should go. Move mode
      */
     private void seeWereCanPlayerGo() {
-        int PlayerWalker = 2;
+        int PlayerWalker = avatar.getMoveRange();
         int Prow = getMyPlayerCoordenates().get("Row");
         int Pcolumn = getMyPlayerCoordenates().get("Column");
 
@@ -315,7 +312,7 @@ public class GridController implements Initializable {
 
 
     private void atack() {
-        int AtakLenght = 1;
+        int AtakLenght = avatar.getKillRange();
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
         int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
 

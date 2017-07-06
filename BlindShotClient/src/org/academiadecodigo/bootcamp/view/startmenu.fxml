@@ -25,7 +25,7 @@
             <Font size="18.0" />
          </font>
       </TextField>
-      <Label fx:id="serverMessage" alignment="CENTER" contentDisplay="CENTER" prefHeight="114.0" prefWidth="626.0" text="Oh! Hello there, mate!" translateY="90.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+      <Label fx:id="serverMessage" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="626.0" text="Oh! Hello there, mate!" translateY="120.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <font>
             <Font size="26.0" />
          </font>
@@ -43,7 +43,7 @@
             <Font size="19.0" />
          </font>
       </Button>
-      <ImageView fx:id="logo" fitHeight="183.0" fitWidth="149.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" styleClass="logo" translateY="-120.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+      <ImageView fx:id="logo" fitHeight="183.0" fitWidth="149.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" styleClass="logo" translateY="-210.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <image>
             <Image url="@/images/logo.png" />
          </image>
