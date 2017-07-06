@@ -16,12 +16,6 @@ public class Main extends Application {
         Navigation.getInstance().setStage(primaryStage);
         Navigation.getInstance().loadScreen("startmenu");
         primaryStage.setResizable(false);
-
-
-
-
-
-
     }
 
     public static void main(String[] args) {

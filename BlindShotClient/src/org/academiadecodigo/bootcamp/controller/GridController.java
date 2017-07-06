@@ -36,8 +36,8 @@ public class GridController implements Initializable {
     //All our node in all cells, are in here
     private ObservableList<Node> myGridElements;
 
-    //AtackMode Boolean true if is the Player turn to attack
-    private boolean atackMode = false;
+    //AttackMode Boolean true if is the Player turn to attack
+    private boolean attackMode = false;
 
     private Client client;
 
@@ -52,14 +52,18 @@ public class GridController implements Initializable {
 
     private static Avatar avatar;
 
+    private String HitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
+    private String FloorPane = "-fx-background-color: transparent";
+
+
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
      */
     private EventHandler playerAction = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
-            if (atackMode) {
-                onClickAtack(event);
+            if (attackMode) {
+                onClickAttack(event);
             } else {
                 onClickchangePlayerPosition(event);
             }
@@ -73,8 +77,8 @@ public class GridController implements Initializable {
     private EventHandler onHoverPlayer = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
-            if (atackMode) {
-                atack();
+            if (attackMode) {
+                attack();
             } else {
                 seeWereCanPlayerGo();
             }
@@ -97,9 +101,9 @@ public class GridController implements Initializable {
      * Method that change the background image of the Node selected, after been clicked
      */
 
-    private void onClickAtack(MouseEvent event) {
+    private void onClickAttack(MouseEvent event) {
         Node element = event.getPickResult().getIntersectedNode();
-        element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
+        element.setStyle(HitPane);
         showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         turn++;
         System.out.println(turn);
@@ -109,7 +113,7 @@ public class GridController implements Initializable {
             e.printStackTrace();
         }
         clearEnablePanes();
-        atackMode = !atackMode;
+        attackMode = !attackMode;
     }
 
     /**
@@ -153,7 +157,7 @@ public class GridController implements Initializable {
 
 
             clearEnablePanes();
-            atackMode = !atackMode;
+            attackMode = !attackMode;
         } else {
             showMessage("It's not your turn, MOTHERFUCKER!!!");
         }
@@ -172,6 +176,7 @@ public class GridController implements Initializable {
         PlayerCircle.setRadius(10);
         PlayerCircle.setStyle("-fx-background-color: blue");
         PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
+        PlayerCircle.setId("Player");
         PlayerCircle.setFocusTraversable(true);
         int column = (int) (Math.random() * grid.getColumnConstraints().size());
         int row = (int) (Math.random() * grid.getRowConstraints().size());
@@ -189,29 +194,13 @@ public class GridController implements Initializable {
     }
 
     /**
-     * Create jafafx object that represent the player an insert on grid randomness
-     */
-
-    public void createRandomPlayerPosition() {
-        grid.add(PlayerCircle, (int) (Math.random() * grid.getColumnConstraints().size()), (int) (Math.random() * grid.getRowConstraints().size()));
-    }
-
-    /**
-     * Create jafafx object that represent the player an insert on grid
-     */
-    public void createPlayerPosition(int row, int column) {
-        grid.add(PlayerCircle, row, column);
-
-    }
-
-    /**
      * Clear grid cells that been painted to highlight the path
      */
     public void clearHighlight() {
         for (Node node : myGridElements) {
             if (node instanceof Pane) {
-                if (!node.getStyle().contains("Hole") && !node.getStyle().contains("lawngreen")) {
-                    node.setStyle("-fx-background-color: black;-fx-border-color: white");
+                if (node.getId().contains("FloorPane")) {
+                    node.setStyle(FloorPane);
                 }
             }
         }
@@ -241,7 +230,8 @@ public class GridController implements Initializable {
         for (int i = 0; i < gridColumns; i++) {
             for (int j = 0; j < gridRows; j++) {
                 GridPane pane = new GridPane();
-                pane.setStyle("-fx-background-color: black;-fx-border-color: white");
+                pane.setStyle(FloorPane);
+                pane.setId("FloorPane");
                 pane.setDisable(true);
                 grid.add(pane, i, j);
                 pane.setOnMouseClicked(playerAction);
@@ -278,7 +268,7 @@ public class GridController implements Initializable {
     }
 
     /**
-     * Method both use by seeWereCanPlayerGo() and atack() to higligh the path
+     * Method both use by seeWereCanPlayerGo() and attack() to higligh the path
      * receive the number os cells length, the player row and player column and the color to paint panes
      */
 
@@ -312,12 +302,12 @@ public class GridController implements Initializable {
     }
 
 
-    private void atack() {
-        int AtakLenght = avatar.getKillRange();
+    private void attack() {
+        int AttakLenght = avatar.getKillRange();
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
         int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
 
-        highLightPath(AtakLenght, PlayerRow, PlayerColumn, "orange");
+        highLightPath(AttakLenght, PlayerRow, PlayerColumn, "orange");
     }
 
     public Node getNodeByRowColumnIndex(int row, int column) {
@@ -360,30 +350,6 @@ public class GridController implements Initializable {
 
     }
 
-    /**
-     * show message on center - Zoom animation
-     */
-    public void popUpMessage(String message) {
-        BorderPane pop = new BorderPane(new Text(message));
-        pop.setPadding(new Insets(15));
-        pop.setId("popUpMessage");
-        grid.add(pop, grid.getColumnConstraints().size() / 2 - 2, grid.getRowConstraints().size() / 2);
-        PauseTransition pp = new PauseTransition(Duration.millis(700));
-
-        pop.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8; -fx-scale-y: 0;-fx-scale-x: 0");
-        ScaleTransition aa = new ScaleTransition(Duration.millis(1000), pop);
-        aa.setByX(2f);
-        aa.setByY(2f);
-
-        ScaleTransition bb = new ScaleTransition(Duration.millis(1000), pop);
-        bb.setByX(-2f);
-        bb.setByY(-2f);
-
-        SequentialTransition seqTransition = new SequentialTransition(aa, pp, bb);
-
-        seqTransition.play();
-    }
-
     private class turnMessage implements Runnable {
 
         @Override
@@ -420,7 +386,7 @@ public class GridController implements Initializable {
                     }
 
                     Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
-                    element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
+                    element.setStyle(HitPane);
                     System.out.println(message);
                     System.out.println("turn: " + turn);
 
@@ -466,7 +432,7 @@ public class GridController implements Initializable {
             System.out.println("clear attacks timeout");
             for (Node node : myGridElements) {
                 if (node instanceof Pane) {
-                    node.setStyle("-fx-background-color: black;-fx-border-color: white");
+                    node.setStyle(FloorPane);
                 }
             }
         }
