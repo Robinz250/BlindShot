@@ -84,7 +84,7 @@ public class Server {
         }
 
         //convert String to Point
-        //players[0] = new Point(collumn, row);
+        //avatar[0] = new Point(collumn, row);
 
         return message;
     }

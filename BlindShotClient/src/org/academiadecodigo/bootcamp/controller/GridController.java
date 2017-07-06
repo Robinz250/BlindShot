@@ -22,7 +22,8 @@ import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
-
+import org.academiadecodigo.bootcamp.Service.MessageService;
+import org.academiadecodigo.bootcamp.avatar.Avatar;
 
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -48,6 +49,8 @@ public class GridController implements Initializable {
     private int turn = 1;
 
     private String winOrLose;
+
+    private static Avatar avatar;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -98,11 +101,11 @@ public class GridController implements Initializable {
         System.out.println("ffff");
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
-        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
+        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         turn++;
         System.out.println(turn);
         try {
-            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
+            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,7 +118,7 @@ public class GridController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
+        client = MessageService.getClient();
         this.myGridElements = grid.getChildren();
         System.out.println("grid loaded");
         new Thread(new turnMessage()).start();
@@ -124,6 +127,10 @@ public class GridController implements Initializable {
         createGridElements();
         createPlayerObject();
 
+    }
+
+    public static void setAvatar(Avatar avatar) {
+        GridController.avatar = avatar;
     }
 
     /**
@@ -135,11 +142,11 @@ public class GridController implements Initializable {
         if (turn == client.getPlayer()) {
             Node element = event.getPickResult().getIntersectedNode();
             grid.getChildren().remove(PlayerCircle);
-            grid.add(PlayerCircle, GridPane.getColumnIndex(element), GridPane.getRowIndex(element));
-            showMessage("Player 1 | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
+            grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
+            showMessage("Player 1 | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
 
             try {
-                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
+                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
                 System.out.println("send");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -167,17 +174,15 @@ public class GridController implements Initializable {
         PlayerCircle.setStyle("-fx-background-color: blue");
         PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
         PlayerCircle.setFocusTraversable(true);
-        //int column = (int) (Math.random() * grid.getColumnConstraints().size());
-        //int row = (int) (Math.random() * grid.getRowConstraints().size());
-        int column = 15;
-        int row = 15;
+        int column = (int) (Math.random() * grid.getColumnConstraints().size());
+        int row = (int) (Math.random() * grid.getRowConstraints().size());
         grid.add(PlayerCircle, column, row);
         try {
             client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        GridPane.setHalignment(PlayerCircle, HPos.CENTER);
+        grid.setHalignment(PlayerCircle, HPos.CENTER);
 
         PlayerCircle.setOnMouseEntered(onHoverPlayer);
 
@@ -254,8 +259,8 @@ public class GridController implements Initializable {
         for (Node s : myGridElements) {
             if (s instanceof Circle) {
                 Map<String, Integer> playerPosition = new HashMap<>();
-                playerPosition.put("Column", GridPane.getColumnIndex(s));
-                playerPosition.put("Row", GridPane.getRowIndex(s));
+                playerPosition.put("Column", grid.getColumnIndex(s));
+                playerPosition.put("Row", grid.getRowIndex(s));
                 return playerPosition;
             }
         }
@@ -266,7 +271,7 @@ public class GridController implements Initializable {
      * Create the highlight to see were the player should go. Move mode
      */
     private void seeWereCanPlayerGo() {
-        int PlayerWalker = 15;
+        int PlayerWalker = avatar.getMoveRange();
         int Prow = getMyPlayerCoordenates().get("Row");
         int Pcolumn = getMyPlayerCoordenates().get("Column");
 
@@ -309,9 +314,9 @@ public class GridController implements Initializable {
 
 
     private void atack() {
-        int AtakLenght = 1;
-        int PlayerRow = getMyPlayerCoordenates().get("Row");
-        int PlayerColumn = getMyPlayerCoordenates().get("Column");
+        int AtakLenght = avatar.getKillRange();
+        int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
+        int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
 
         highLightPath(AtakLenght, PlayerRow, PlayerColumn, "orange");
     }
@@ -320,8 +325,8 @@ public class GridController implements Initializable {
         Node result = null;
         for (Node node : myGridElements) {
             if ((row <= grid.getRowConstraints().size() && row >= 0) || (column <= grid.getColumnConstraints().size() && column >= 0)) {
-                if (GridPane.getRowIndex(node) != null || GridPane.getColumnIndex(node) != null) {
-                    if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
+                if (grid.getRowIndex(node) != null || grid.getColumnIndex(node) != null) {
+                    if (grid.getRowIndex(node) == row && grid.getColumnIndex(node) == column) {
                         result = node;
                         break;
                     }
@@ -425,8 +430,6 @@ public class GridController implements Initializable {
                             Duration.millis(5000),
                             ae -> clearAttacks()));
                     timeline.play();
-//                    message = in.readLine();
-//                    System.out.println(message);
 
                 } catch (IOException e) {
                     e.printStackTrace();
