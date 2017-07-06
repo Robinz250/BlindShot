@@ -1,8 +1,10 @@
 package org.academiadecodigo.bootcamp.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -30,6 +32,9 @@ public class MenuController implements Initializable {
 
     @FXML
     private Label serverMessage;
+
+    @FXML
+    private Hyperlink instructionsLink;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -62,5 +67,11 @@ public class MenuController implements Initializable {
             new Thread(new Waiting(client.getClientSocket())).start();
             System.out.println((client.getPlayer()));
         }
+    }
+    @FXML
+    void goToInstructions(ActionEvent event) {
+        Navigation.getInstance().loadScreen("instructionsview.fxml");
+
+
     }
 }

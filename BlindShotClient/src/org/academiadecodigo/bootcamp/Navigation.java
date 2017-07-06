@@ -9,8 +9,10 @@ import javafx.stage.Stage;
 import org.academiadecodigo.bootcamp.controller.GameOverController;
 import org.academiadecodigo.bootcamp.controller.GridController;
 
+import javax.swing.text.View;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -25,6 +27,7 @@ public final class Navigation {
     public static final int HEIGHT = 600;
     private Map<String, Initializable> controllers = new HashMap<>();
     private Client client;
+    private LinkedList<Scene> scenes = new LinkedList<>();
 
     private Navigation() {
 
@@ -75,6 +78,27 @@ public final class Navigation {
         stage.setScene(scene);
         stage.show();
     }
+
+    public void back() {
+
+        if (scenes.size() == 1) {
+
+            return;
+
+        }
+
+        scenes.pop();
+
+        setScene(scenes.peek());
+
+    }
+
+    public void close() {
+
+        stage.close();
+
+    }
+
 
     public void setClient(Client client) {
         this.client = client;
