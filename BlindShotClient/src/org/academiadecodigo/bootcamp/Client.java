@@ -1,11 +1,7 @@
 package org.academiadecodigo.bootcamp;
 
-import javafx.application.Platform;
-import org.academiadecodigo.bootcamp.controller.MenuController;
-
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 /**
  * Created by ruimorais on 02/07/17.
@@ -18,6 +14,9 @@ public class Client implements Runnable {
     private int player;
     public static final int numberOfPlayers = 1;
 
+    private static int moveRange;
+    private static int killingRange;
+
     @Override
     public void run() {
 
@@ -27,6 +26,8 @@ public class Client implements Runnable {
             e.printStackTrace();
         }
     }
+
+
 
     public void connectToServer() throws IOException {
         clientSocket = new Socket("localhost", 6666); // conecta o cliente ao servidor

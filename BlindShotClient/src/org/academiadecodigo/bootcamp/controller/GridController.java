@@ -10,6 +10,8 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
@@ -22,6 +24,8 @@ import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
+import org.academiadecodigo.bootcamp.Service.MessageService;
+import org.academiadecodigo.bootcamp.avatar.Avatar;
 
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -40,7 +44,6 @@ public class GridController implements Initializable {
     private Client client;
 
     @FXML
-
     private GridPane grid;
 
     private Circle playerCircle;
@@ -52,6 +55,10 @@ public class GridController implements Initializable {
     private String attackImage = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
 
     /* */
+
+    private String winOrLose;
+
+    private static Avatar avatar;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -117,7 +124,7 @@ public class GridController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
+        client = MessageService.getClient();
         this.myGridElements = grid.getChildren();
         System.out.println("grid loaded");
         new Thread(new turnMessage()).start();
@@ -162,10 +169,15 @@ public class GridController implements Initializable {
 
     }
 
+    public static void setAvatar(Avatar avatar) {
+        GridController.avatar = avatar;
+    }
+
     /**
      * Method that change the player Node Position, to cell that previous been clicked
      */
     private void onClickchangePlayerPosition(MouseEvent event) {
+        System.out.println(turn);
 
         if (turn == client.getPlayer()) {
             System.out.println("col:" + grid.getColumnIndex(playerCircle));
@@ -308,7 +320,7 @@ public class GridController implements Initializable {
      * Create the highlight to see were the player should go. Move mode
      */
     private void seeWereCanPlayerGo() {
-        int PlayerWalker = 2;
+        int PlayerWalker = avatar.getMoveRange();
         int Prow = getMyPlayerCoordenates().get("Row");
         int Pcolumn = getMyPlayerCoordenates().get("Column");
 
@@ -351,7 +363,7 @@ public class GridController implements Initializable {
 
 
     private void atack() {
-        int AtakLenght = 1;
+        int AtakLenght = avatar.getKillRange();
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
         int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
 
@@ -421,7 +433,6 @@ public class GridController implements Initializable {
 
         seqTransition.play();
     }
-
     private class turnMessage implements Runnable {
 
         @Override
@@ -435,6 +446,9 @@ public class GridController implements Initializable {
                     String[] divide;
                     divide = message.split(" \\| ");
                     turn = Integer.parseInt(divide[0]);
+                    winOrLose = divide[7];
+
+                    winOrLose();
 
                     if (turn == 0) {
 
@@ -454,7 +468,7 @@ public class GridController implements Initializable {
                         System.out.println(s);
                     }
 
-                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
+                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]),Integer.parseInt(divide[6]));
                     element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
                     System.out.println(message);
                     System.out.println("turn: " + turn);
@@ -469,6 +483,31 @@ public class GridController implements Initializable {
                     e.printStackTrace();
                 }
 
+            }
+        }
+
+        private void winOrLose() {
+            if (winOrLose.equals("YOU LOOSE")) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Navigation.getInstance().loadScreen("gameOver");
+                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        System.out.println(Navigation.getInstance().getControllers().get("gameOver"));
+                        gameOverController.setWinnerLabelText("YOU LOOSE");
+                    }
+                });
+                System.out.println(winOrLose);
+            } else if (winOrLose.equals("YOU WIN")) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Navigation.getInstance().loadScreen("gameOver");
+                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        gameOverController.setWinnerLabelText("YOU WIN");
+                    }
+                });
+                System.out.println(winOrLose);
             }
         }
 

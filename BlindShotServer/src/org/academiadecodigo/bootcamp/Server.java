@@ -6,6 +6,8 @@ import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ruimorais on 02/07/17.
@@ -19,6 +21,8 @@ public class Server {
     private int turn = 0;
     private Point players[] = new Point[NUMBER_OF_PLAYERS];
     private Point attack;
+    //private Map<Socket, Point> clients = new HashMap<>();
+    private int deadPlayers;
 
     public void init() throws IOException {
 
@@ -80,7 +84,7 @@ public class Server {
         }
 
         //convert String to Point
-        //players[0] = new Point(collumn, row);
+        //avatar[0] = new Point(collumn, row);
 
         return message;
     }
@@ -112,8 +116,7 @@ public class Server {
                 System.out.println(attack);
 
                 String[] attacks = attack.split(" ");
-                this.attack = new Point(Integer.parseInt(attacks[7]),(Integer.parseInt(attacks[11])));
-                attackRecieve();
+                this.attack = new Point(Integer.parseInt(attacks[7]), (Integer.parseInt(attacks[11])));
 
                 turn++;
 
@@ -124,15 +127,19 @@ public class Server {
                 for (Socket socket : clientSockets) {
                     try {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        out.write(Integer.toString((turn+1)) + " | " + attack + "\n");
+                        out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + attackRecieve() +"\n");
 
                         out.flush();
-                        System.out.println("turn: " + (turn+1));
+                        System.out.println("turn: " + (turn + 1));
 
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
+
+//                attackRecieve();
+//                confirmDeadPlayers();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -140,21 +147,39 @@ public class Server {
         }
     }
 
-    public void attackRecieve() {
+    public String attackRecieve() {
         for (int i = 0; i < players.length; i++) {
             if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY()) {
-                for (Socket socket : clientSockets) {
-                    try {
-                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        out.write("0 | " + "morreste" + "\n");
-                        out.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                try {
+                deadPlayers++;
+                return "YOU LOOSE";
+//                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
+//                    out.write("0 | " + "YOU LOOSE!!!" + "\n");
+//                    out.flush();
+//                    System.out.println(players[i] + " you loose");
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
             }
+            if (((players.length - 1) == deadPlayers) && (players[i].getX() != attack.getX() || players[i].getY() != attack.getY())) {
+//                try {
+                return "YOU WIN";
+//                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
+//                    out.write("0 | " + "YOU WIN!!!" + "\n");
+//                    out.flush();
+//                    System.out.println(players[i] + " You win");
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+            }
+        }
+        return "MISS";
+    }
+//    }
+
+    public void confirmDeadPlayers() {
+        for (int i = 0; i < players.length; i++) {
 
         }
     }
-
 }
