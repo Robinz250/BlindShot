@@ -10,6 +10,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.layout.BorderPane;
@@ -22,7 +23,7 @@ import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 
-import java.awt.*;
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -438,7 +439,9 @@ public class GridController implements Initializable {
                     @Override
                     public void run() {
                         Navigation.getInstance().loadScreen("gameOver");
-
+                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        System.out.println(Navigation.getInstance().getControllers().get("gameOver"));
+                        gameOverController.setWinnerLabelText("YOU LOOSE");
                     }
                 });
                 System.out.println(winOrLose);
@@ -447,6 +450,8 @@ public class GridController implements Initializable {
                     @Override
                     public void run() {
                         Navigation.getInstance().loadScreen("gameOver");
+                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        gameOverController.setWinnerLabelText("YOU WIN");
                     }
                 });
                 System.out.println(winOrLose);

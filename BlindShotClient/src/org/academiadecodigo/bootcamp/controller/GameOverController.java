@@ -2,10 +2,14 @@ package org.academiadecodigo.bootcamp.controller;
 
         import javafx.event.ActionEvent;
         import javafx.fxml.FXML;
+        import javafx.fxml.Initializable;
         import javafx.scene.control.Button;
         import javafx.scene.control.Label;
 
-public class GameOverController {
+        import java.net.URL;
+        import java.util.ResourceBundle;
+
+public class GameOverController implements Initializable {
 
     @FXML
     private Button quitButton;
@@ -26,4 +30,12 @@ public class GameOverController {
 
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
+
+    public void setWinnerLabelText(String labelText) {
+        winnerLabel.setText(labelText);
+    }
 }

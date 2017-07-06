@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import org.academiadecodigo.bootcamp.controller.GameOverController;
 import org.academiadecodigo.bootcamp.controller.GridController;
 
 import java.io.IOException;
@@ -52,6 +53,12 @@ public final class Navigation {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/"+ view +".fxml"));
 
             Parent root = fxmlLoader.load();
+
+            Initializable controller = fxmlLoader.getController();
+
+            System.out.println("a: " + controller);
+
+            controllers.put(view, controller);
 
             root.getStylesheets().add("/css/style.css");
 
