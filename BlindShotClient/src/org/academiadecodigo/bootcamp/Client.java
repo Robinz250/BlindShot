@@ -16,7 +16,7 @@ public class Client implements Runnable {
     private BufferedWriter out;
     private BufferedReader in;
     private int player;
-    public static final int numberOfPlayers = 3;
+    public static final int numberOfPlayers = 1;
 
     @Override
     public void run() {

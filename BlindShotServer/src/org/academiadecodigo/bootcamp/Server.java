@@ -12,7 +12,7 @@ import java.net.Socket;
  */
 public class Server {
 
-    public static final int NUMBER_OF_PLAYERS = 2;
+    public static final int NUMBER_OF_PLAYERS = 1;
     private ServerSocket serverSocket;
     private Socket[] clientSockets;
     private Thread[] threads;

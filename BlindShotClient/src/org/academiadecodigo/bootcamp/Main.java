@@ -19,7 +19,7 @@ public class Main extends Application {
         // faz load da view pre-game na thread do javaFX
         Navigation.getInstance().setClient(client);
         Navigation.getInstance().setStage(primaryStage);
-        Navigation.getInstance().loadScreen("startmenu");
+        Navigation.getInstance().loadScreen("grid");
         primaryStage.setResizable(false);
 
 
