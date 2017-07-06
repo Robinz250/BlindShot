@@ -2,6 +2,7 @@ package org.academiadecodigo.bootcamp.controller;
 
 import javafx.animation.TranslateTransition;
 import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
@@ -9,6 +10,7 @@ import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -46,6 +48,9 @@ public class MenuController implements Initializable {
 
     @FXML
     private Label serverMessage;
+
+    @FXML
+    private Hyperlink instructionsLink;
 
     @FXML
     private GridPane menuPane;
@@ -171,9 +176,15 @@ public class MenuController implements Initializable {
             client.sendMessage("I'm ready");
             client.receiveMessage();
             playButton.setVisible(false);
-            serverMessage.setText("Waiting for other avatar to connect...");
+            serverMessage.setText("Waiting for other players to connect...");
             new Thread(new Waiting(client.getClientSocket())).start();
             System.out.println((client.getPlayer()));
         }
+    }
+    @FXML
+    void goToInstructions(ActionEvent event) {
+        Navigation.getInstance().loadScreen("instructionsview");
+
+
     }
 }

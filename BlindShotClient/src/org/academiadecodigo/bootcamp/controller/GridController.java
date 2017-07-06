@@ -9,6 +9,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.layout.BorderPane;
@@ -17,6 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 import org.academiadecodigo.bootcamp.Service.MessageService;
@@ -44,6 +47,8 @@ public class GridController implements Initializable {
     private Circle PlayerCircle;
 
     private int turn = 1;
+
+    private String winOrLose;
 
     private static Avatar avatar;
 
@@ -117,6 +122,8 @@ public class GridController implements Initializable {
         this.myGridElements = grid.getChildren();
         System.out.println("grid loaded");
         new Thread(new turnMessage()).start();
+
+
         createGridElements();
         createPlayerObject();
 
@@ -148,8 +155,7 @@ public class GridController implements Initializable {
 
             clearEnablePanes();
             atackMode = !atackMode;
-        }
-        else {
+        } else {
             showMessage("It's not your turn, MOTHERFUCKER!!!");
         }
 
@@ -307,10 +313,6 @@ public class GridController implements Initializable {
     }
 
 
-
-
-
-
     private void atack() {
         int AtakLenght = avatar.getKillRange();
         int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
@@ -382,6 +384,7 @@ public class GridController implements Initializable {
 
         seqTransition.play();
     }
+
     private class turnMessage implements Runnable {
 
         @Override
@@ -395,6 +398,9 @@ public class GridController implements Initializable {
                     String[] divide;
                     divide = message.split(" \\| ");
                     turn = Integer.parseInt(divide[0]);
+                    winOrLose = divide[7];
+
+                    winOrLose();
 
                     if (turn == 0) {
 
@@ -414,7 +420,7 @@ public class GridController implements Initializable {
                         System.out.println(s);
                     }
 
-                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]),Integer.parseInt(divide[6]));
+                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
                     element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
                     System.out.println(message);
                     System.out.println("turn: " + turn);
@@ -429,6 +435,31 @@ public class GridController implements Initializable {
                     e.printStackTrace();
                 }
 
+            }
+        }
+
+        private void winOrLose() {
+            if (winOrLose.equals("YOU LOOSE")) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Navigation.getInstance().loadScreen("gameOver");
+                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        System.out.println(Navigation.getInstance().getControllers().get("gameOver"));
+                        gameOverController.setWinnerLabelText("YOU LOOSE");
+                    }
+                });
+                System.out.println(winOrLose);
+            } else if (winOrLose.equals("YOU WIN")) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Navigation.getInstance().loadScreen("gameOver");
+                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        gameOverController.setWinnerLabelText("YOU WIN");
+                    }
+                });
+                System.out.println(winOrLose);
             }
         }
 
