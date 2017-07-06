@@ -124,11 +124,16 @@ public class Server {
                     turn = 0;
                 }
 
-                for (Socket socket : clientSockets) {
-                    try {
-                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + attackRecieve() +"\n");
+                for (Point point : players) {
+                    if (point.getX() == this.attack.getX() && point.getY() == this.attack.getY()) {
+                        deadPlayers++;
+                    }
+                }
 
+                for (int i = 0; i < clientSockets.length; i++) {
+                    try {
+                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
+                        out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + attackRecieve(attacks, i) +"\n");
                         out.flush();
                         System.out.println("turn: " + (turn + 1));
 
@@ -136,10 +141,6 @@ public class Server {
                         e.printStackTrace();
                     }
                 }
-
-//                attackRecieve();
-//                confirmDeadPlayers();
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -147,39 +148,25 @@ public class Server {
         }
     }
 
-    public String attackRecieve() {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY()) {
-//                try {
-                deadPlayers++;
+    public String attackRecieve(String[] attacks, int i) {
+
+            System.out.println("player " + i + " x " + players[i].getX());
+            System.out.println("attack x: " + attack.getX());
+            System.out.println("player " + i + " y: " + players[i].getY());
+            System.out.println("attack y: " + attack.getY());
+            System.out.println("who attacked? " + Integer.parseInt(attacks[1]));
+            System.out.println("dead: " + deadPlayers);
+            System.out.println("i: " + i);
+
+            if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY() && Integer.parseInt(attacks[1]) != (i+1)) {
+                System.out.println("YOU LOOSE");
                 return "YOU LOOSE";
-//                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
-//                    out.write("0 | " + "YOU LOOSE!!!" + "\n");
-//                    out.flush();
-//                    System.out.println(players[i] + " you loose");
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
             }
+
             if (((players.length - 1) == deadPlayers) && (players[i].getX() != attack.getX() || players[i].getY() != attack.getY())) {
-//                try {
+                System.out.println("YOU WIN");
                 return "YOU WIN";
-//                    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
-//                    out.write("0 | " + "YOU WIN!!!" + "\n");
-//                    out.flush();
-//                    System.out.println(players[i] + " You win");
-//                } catch (IOException e) {
-//                    e.printStackTrace();
             }
-        }
         return "MISS";
-    }
-//    }
-
-    public void confirmDeadPlayers() {
-        for (int i = 0; i < players.length; i++) {
-
-        }
     }
 }

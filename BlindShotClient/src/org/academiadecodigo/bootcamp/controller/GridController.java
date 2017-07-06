@@ -98,11 +98,11 @@ public class GridController implements Initializable {
         System.out.println("ffff");
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
-        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
         turn++;
         System.out.println(turn);
         try {
-            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -135,11 +135,11 @@ public class GridController implements Initializable {
         if (turn == client.getPlayer()) {
             Node element = event.getPickResult().getIntersectedNode();
             grid.getChildren().remove(PlayerCircle);
-            grid.add(PlayerCircle, grid.getColumnIndex(element).intValue(), grid.getRowIndex(element).intValue());
-            showMessage("Player 1 | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+            grid.add(PlayerCircle, GridPane.getColumnIndex(element), GridPane.getRowIndex(element));
+            showMessage("Player 1 | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
 
             try {
-                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
+                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
                 System.out.println("send");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -167,15 +167,17 @@ public class GridController implements Initializable {
         PlayerCircle.setStyle("-fx-background-color: blue");
         PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
         PlayerCircle.setFocusTraversable(true);
-        int column = (int) (Math.random() * grid.getColumnConstraints().size());
-        int row = (int) (Math.random() * grid.getRowConstraints().size());
+        //int column = (int) (Math.random() * grid.getColumnConstraints().size());
+        //int row = (int) (Math.random() * grid.getRowConstraints().size());
+        int column = 15;
+        int row = 15;
         grid.add(PlayerCircle, column, row);
         try {
             client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        grid.setHalignment(PlayerCircle, HPos.CENTER);
+        GridPane.setHalignment(PlayerCircle, HPos.CENTER);
 
         PlayerCircle.setOnMouseEntered(onHoverPlayer);
 
@@ -252,8 +254,8 @@ public class GridController implements Initializable {
         for (Node s : myGridElements) {
             if (s instanceof Circle) {
                 Map<String, Integer> playerPosition = new HashMap<>();
-                playerPosition.put("Column", grid.getColumnIndex(s));
-                playerPosition.put("Row", grid.getRowIndex(s));
+                playerPosition.put("Column", GridPane.getColumnIndex(s));
+                playerPosition.put("Row", GridPane.getRowIndex(s));
                 return playerPosition;
             }
         }
@@ -264,7 +266,7 @@ public class GridController implements Initializable {
      * Create the highlight to see were the player should go. Move mode
      */
     private void seeWereCanPlayerGo() {
-        int PlayerWalker = 2;
+        int PlayerWalker = 15;
         int Prow = getMyPlayerCoordenates().get("Row");
         int Pcolumn = getMyPlayerCoordenates().get("Column");
 
@@ -308,8 +310,8 @@ public class GridController implements Initializable {
 
     private void atack() {
         int AtakLenght = 1;
-        int PlayerRow = getMyPlayerCoordenates().get("Row").intValue();
-        int PlayerColumn = getMyPlayerCoordenates().get("Column").intValue();
+        int PlayerRow = getMyPlayerCoordenates().get("Row");
+        int PlayerColumn = getMyPlayerCoordenates().get("Column");
 
         highLightPath(AtakLenght, PlayerRow, PlayerColumn, "orange");
     }
@@ -318,8 +320,8 @@ public class GridController implements Initializable {
         Node result = null;
         for (Node node : myGridElements) {
             if ((row <= grid.getRowConstraints().size() && row >= 0) || (column <= grid.getColumnConstraints().size() && column >= 0)) {
-                if (grid.getRowIndex(node) != null || grid.getColumnIndex(node) != null) {
-                    if (grid.getRowIndex(node) == row && grid.getColumnIndex(node) == column) {
+                if (GridPane.getRowIndex(node) != null || GridPane.getColumnIndex(node) != null) {
+                    if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
                         result = node;
                         break;
                     }
