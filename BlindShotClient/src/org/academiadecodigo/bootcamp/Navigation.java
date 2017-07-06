@@ -4,12 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import org.academiadecodigo.bootcamp.controller.GameOverController;
-import org.academiadecodigo.bootcamp.controller.GridController;
-
-import javax.swing.text.View;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
