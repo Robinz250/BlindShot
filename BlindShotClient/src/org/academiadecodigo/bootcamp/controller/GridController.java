@@ -98,7 +98,6 @@ public class GridController implements Initializable {
      */
 
     private void onClickAtack(MouseEvent event) {
-        System.out.println("ffff");
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle("-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center");
         showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));

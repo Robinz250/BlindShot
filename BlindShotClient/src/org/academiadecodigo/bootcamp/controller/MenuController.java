@@ -1,23 +1,23 @@
 package org.academiadecodigo.bootcamp.controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
-import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.Client;
@@ -26,7 +26,6 @@ import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Waiting;
 import org.academiadecodigo.bootcamp.avatar.Avatar;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -44,6 +43,9 @@ public class MenuController implements Initializable {
     private Button playButton;
 
     @FXML
+    private Text errorText;
+
+    @FXML
     private TextField playerMessage;
 
     @FXML
@@ -54,6 +56,11 @@ public class MenuController implements Initializable {
 
     @FXML
     private GridPane menuPane;
+
+    /**
+     * Event on click Avatar : remove class avatarSelected from all avatar, and add on selected avatar.
+     * Then set avatar on GridController
+     */
 
     private EventHandler avatarSelected = new EventHandler<MouseEvent>() {
         @Override
@@ -68,12 +75,15 @@ public class MenuController implements Initializable {
             event.getPickResult().getIntersectedNode().getStyleClass().add("avatarSelected");
             event.getPickResult().getIntersectedNode().getStyleClass().remove("initialAvatar");
 
-            String[] divide;
-            divide = event.getPickResult().getIntersectedNode().getId().split(" ");
+            String[] divide = event.getPickResult().getIntersectedNode().getId().split(" ");
 
             GridController.setAvatar(Avatar.values()[Integer.parseInt(divide[1])]);
         }
     };
+
+    /**
+     * Event on hover Avatar : add Class avatarHover and remove initialAvatar with opacity.
+     */
     private EventHandler hoverAvatar = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
@@ -83,6 +93,10 @@ public class MenuController implements Initializable {
         }
     };
 
+    /**
+     * Event on hoverOut Avatar : add Class initialAvatar and remove avatarHover.
+     */
+
     private EventHandler exitAvatar = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
@@ -91,6 +105,7 @@ public class MenuController implements Initializable {
         }
     };
 
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -98,33 +113,41 @@ public class MenuController implements Initializable {
         Thread thread = new Thread(client);
         thread.start();
         MessageService.setClient(client);
+        /* create avatars to choose */
+        avatarCreator();
+        avatarIsSelected();
+    }
 
-        //create avatars to choose
-
+    /**
+     * create avatars and display on screen.
+     */
+    private void avatarCreator() {
         for (int i = 0; i < Avatar.values().length; i++) {
-            Text avatarGrid = new Text();
-            Label iv1 = new Label();
-            iv1.setMaxSize(150, 150);
-            iv1.setId("Avatar " + i);
-            iv1.setStyle("-fx-background-image:url(" + Avatar.values()[i].getImage() + ") ");
-            iv1.getStyleClass().add("initialAvatar");
-            iv1.setTranslateY(-30);
-            avatarGrid.setText(Avatar.values()[i].getName());
-            avatarGrid.setId("AvatarText");
-            avatarGrid.setTranslateY(70);
-            if (i == 0) {
-                TranslateTransition tt = new TranslateTransition(Duration.millis(1495), iv1);
-                TranslateTransition uu = new TranslateTransition(Duration.millis(1495), avatarGrid);
 
+            Label imageHolder = new Label();
+            imageHolder.setMaxSize(150, 150);
+            imageHolder.setId("Avatar " + i);
+            imageHolder.setStyle("-fx-background-image:url(" + Avatar.values()[i].getImage() + ") ");
+            imageHolder.getStyleClass().add("initialAvatar");
+            imageHolder.setTranslateY(-30);
+
+            Text avatarText = new Text();
+            avatarText.setText(Avatar.values()[i].getName());
+            avatarText.setId("Text");
+            avatarText.setTranslateY(70);
+
+            if (i == 0) {
+                TranslateTransition tt = new TranslateTransition(Duration.millis(1495), imageHolder);
+                TranslateTransition uu = new TranslateTransition(Duration.millis(1495), avatarText);
                 uu.setByX(-200);
                 tt.setByX(-200);
-
                 tt.play();
                 uu.play();
             }
+
             if (i == 1) {
-                TranslateTransition t2 = new TranslateTransition(Duration.millis(1495), iv1);
-                TranslateTransition t1 = new TranslateTransition(Duration.millis(1495), avatarGrid);
+                TranslateTransition t2 = new TranslateTransition(Duration.millis(1495), imageHolder);
+                TranslateTransition t1 = new TranslateTransition(Duration.millis(1495), avatarText);
 
                 t1.setByX(200);
                 t2.setByX(200);
@@ -134,53 +157,109 @@ public class MenuController implements Initializable {
             }
 
             if (i == 2) {
-                TranslateTransition tt = new TranslateTransition(Duration.millis(1495), iv1);
+                TranslateTransition tt = new TranslateTransition(Duration.millis(1495), imageHolder);
                 tt.setByX(0);
                 tt.play();
             }
 
+            menuPane.setHalignment(imageHolder, HPos.CENTER);
+            menuPane.setHalignment(avatarText, HPos.CENTER);
 
-            menuPane.setHalignment(iv1, HPos.CENTER);
-            menuPane.setHalignment(avatarGrid, HPos.CENTER);
-            menuPane.add(iv1, 0, 0);
-            menuPane.add(avatarGrid, 0, 0);
+            menuPane.add(imageHolder, 0, 0);
+            menuPane.add(avatarText, 0, 0);
+
             menuPane.setAlignment(Pos.CENTER);
-            iv1.setOnMouseClicked(avatarSelected);
-            iv1.setOnMouseEntered(hoverAvatar);
-            iv1.setOnMouseExited(exitAvatar);
+
+            imageHolder.setOnMouseClicked(avatarSelected);
+            imageHolder.setOnMouseEntered(hoverAvatar);
+            imageHolder.setOnMouseExited(exitAvatar);
         }
+    }
 
+    /**
+     * check if avatar is selected
+     */
 
-        //client = Navigation.getInstance().getClient();
+    private boolean avatarIsSelected(){
+        for (Node PaneChildren : menuPane.getChildren()) {
+            if(PaneChildren instanceof Label && PaneChildren.getId().contains("Avatar")){
+                for (Object ChildrenClasses: PaneChildren.getStyleClass()) {
+                    if(ChildrenClasses.toString().contains("avatarSelected")){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean NameIsEmpty(){
+        if(playerMessage.getText().equals("")){
+            return false;
+        }
+        return true;
     }
 
     @FXML
     public void playerMessage() throws IOException {
 
-        // se o botão disser "submit", envia mensagem para o servidor com o nome do player, escrito no textfield
-        if (playButton.getText().equals("Submit")) {
-            try {
-                client.sendMessage(playerMessage.getText());
-                serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
-                playButton.setText("Play");
-                playerMessage.setVisible(false);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if(NameIsEmpty() && avatarIsSelected()){
+            errorText.setText("");
+            // se o botão disser "submit", envia mensagem para o servidor com o nome do player, escrito no textfield
+            if (playButton.getText().equals("Submit")) {
+                try {
+                    client.sendMessage(playerMessage.getText());
+                    serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
+                    playButton.setText("Play");
+                    playerMessage.setVisible(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // depois de enviado o nome, o butão de "submit" transforma-se em "play"; ao ser clickado, o cliente envia uma
+            // mensagem ao servidor a informar que está pronto para jogar; recebe mensagem do servidor a dizer que ta a espera que os outros clientes respondam
+            // cria uma nova thread que fica a espera da mensagem do servidor para começar o jogo, e que faz load da view do jogo qd a recebe
+            else {
+                client.sendMessage("I'm ready");
+                client.receiveMessage();
+                playButton.setVisible(false);
+                serverMessage.setText("Waiting for other players to connect...");
+                new Thread(new Waiting(client.getClientSocket())).start();
+                System.out.println((client.getPlayer()));
+            }
+        } else{
+
+            if(!NameIsEmpty()){
+                playerMessage.setStyle("-fx-border-color: red");
+                errorText.setText("Choose a name");
+                return;
+            }
+
+            if(!avatarIsSelected()){
+                int depth = 100; //Setting the uniform variable for the glow width and height
+                DropShadow borderGlow= new DropShadow();
+                borderGlow.setOffsetY(0f);
+                borderGlow.setOffsetX(0f);
+                borderGlow.setColor(Color.GOLD);
+                borderGlow.setWidth(depth);
+                borderGlow.setHeight(depth);
+
+                for (Node PaneChildren : menuPane.getChildren()) {
+                    if(PaneChildren instanceof Label && PaneChildren.getId().contains("Avatar")){
+                        PaneChildren.setEffect(borderGlow);
+
+                        Timeline timeline = new Timeline(new KeyFrame(
+                                Duration.millis(2000),
+                                ae -> PaneChildren.setEffect(null)));
+                        timeline.play();
+                    }
+                }
+                errorText.setText("Choose a Player");
             }
         }
-
-        // depois de enviado o nome, o butão de "submit" transforma-se em "play"; ao ser clickado, o cliente envia uma
-        // mensagem ao servidor a informar que está pronto para jogar; recebe mensagem do servidor a dizer que ta a espera que os outros clientes respondam
-        // cria uma nova thread que fica a espera da mensagem do servidor para começar o jogo, e que faz load da view do jogo qd a recebe
-        else {
-            client.sendMessage("I'm ready");
-            client.receiveMessage();
-            playButton.setVisible(false);
-            serverMessage.setText("Waiting for other players to connect...");
-            new Thread(new Waiting(client.getClientSocket())).start();
-            System.out.println((client.getPlayer()));
-        }
     }
+
     @FXML
     void goToInstructions(ActionEvent event) {
         Navigation.getInstance().loadScreen("instructionsview");

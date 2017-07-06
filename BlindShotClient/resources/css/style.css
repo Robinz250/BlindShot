@@ -33,3 +33,7 @@
     -fx-fill: white;
     -fx-text-alignment: center;
 }
+
+.Highlight{
+    -fx-effect: innershadow(gaussian, #039ed3, 10, 1.0, 0, 0);
+}
