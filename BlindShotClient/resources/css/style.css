@@ -26,7 +26,7 @@
     -fx-opacity: 1;
 }
 
-#AvatarText{
+#Text{
     -fx-font-size: 16;
     -fx-font-family: sans-serif;
     -fx-text-fill: white;
