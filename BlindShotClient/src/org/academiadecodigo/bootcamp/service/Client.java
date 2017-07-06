@@ -1,4 +1,4 @@
-package org.academiadecodigo.bootcamp;
+package org.academiadecodigo.bootcamp.service;
 
 import java.io.*;
 import java.net.Socket;
@@ -6,16 +6,11 @@ import java.net.Socket;
 /**
  * Created by ruimorais on 02/07/17.
  */
-public class Client implements Runnable {
+public class ClientService implements Runnable {
 
     private Socket clientSocket;
-    private BufferedWriter out;
-    private BufferedReader in;
     private int player;
     public static final int numberOfPlayers = 3;
-
-    private static int moveRange;
-    private static int killingRange;
 
     @Override
     public void run() {
@@ -27,11 +22,9 @@ public class Client implements Runnable {
         }
     }
 
-
-
     public void connectToServer() throws IOException {
-        clientSocket = new Socket("localhost", 6666); // conecta o cliente ao servidor
-        waitForServerMessage(); // fica a espera da primeira mensagem do servidor, que lhe atribui o numero do player
+        clientSocket = new Socket("localhost", 6666);
+        waitForServerMessage();
     }
 
     public void waitForServerMessage() {
@@ -47,14 +40,12 @@ public class Client implements Runnable {
     }
 
     public void sendMessage(String message) throws IOException {
-        System.out.println("sen");
-        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         out.write(message + "\n");
         out.flush();
     }
 
     public void receiveMessage() {
-        System.out.println("receive");
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             String message;
