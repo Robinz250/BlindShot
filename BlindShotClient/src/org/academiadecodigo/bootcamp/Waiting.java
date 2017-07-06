@@ -24,7 +24,7 @@ public class Waiting implements Runnable {
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String message;
                 message = in.readLine();
-                System.out.println("waiting");
+                System.out.println(message);
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {

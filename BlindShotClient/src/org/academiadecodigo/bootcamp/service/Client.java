@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * Created by ruimorais on 02/07/17.
  */
-public class ClientService implements Runnable {
+public class Client implements Runnable {
 
     private Socket clientSocket;
     private int player;

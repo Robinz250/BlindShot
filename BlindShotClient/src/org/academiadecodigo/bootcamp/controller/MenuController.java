@@ -6,27 +6,21 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
-import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.academiadecodigo.bootcamp.Client;
+import org.academiadecodigo.bootcamp.service.Client;
 import org.academiadecodigo.bootcamp.Navigation;
-import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Waiting;
 import org.academiadecodigo.bootcamp.avatar.Avatar;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -50,12 +44,10 @@ public class MenuController implements Initializable {
     private Label serverMessage;
 
     @FXML
-    private Hyperlink instructionsLink;
-
-    @FXML
     private GridPane menuPane;
 
     private EventHandler avatarSelected = new EventHandler<MouseEvent>() {
+
         @Override
         public void handle(MouseEvent event) {
 
@@ -64,7 +56,6 @@ public class MenuController implements Initializable {
                     s.getStyleClass().remove("avatarSelected");
                 }
             }
-
             event.getPickResult().getIntersectedNode().getStyleClass().add("avatarSelected");
             event.getPickResult().getIntersectedNode().getStyleClass().remove("initialAvatar");
 
@@ -74,6 +65,7 @@ public class MenuController implements Initializable {
             GridController.setAvatar(Avatar.values()[Integer.parseInt(divide[1])]);
         }
     };
+
     private EventHandler hoverAvatar = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
@@ -93,14 +85,38 @@ public class MenuController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        client = Navigation.getInstance().getClient();
+        chooseAvatar();
+    }
 
-        this.client = new Client();
-        Thread thread = new Thread(client);
-        thread.start();
-        MessageService.setClient(client);
+    @FXML
+    public void playerMessage() throws IOException {
+        if (playButton.getText().equals("Submit")) {
+            try {
+                client.sendMessage(playerMessage.getText());
+                serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
+                playButton.setText("Play");
+                playerMessage.setVisible(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            client.sendMessage("I'm ready");
+            client.receiveMessage();
+            playButton.setVisible(false);
+            serverMessage.setText("Waiting for other players to connect...");
+            new Thread(new Waiting(client.getClientSocket())).start();
+            System.out.println((client.getPlayer()));
+        }
+    }
 
-        //create avatars to choose
+    @FXML
+    private void goToInstructions(ActionEvent event) {
+        Navigation.getInstance().loadScreen("instructionsview");
+    }
 
+    private void chooseAvatar() {
         for (int i = 0; i < Avatar.values().length; i++) {
             Text avatarGrid = new Text();
             Label iv1 = new Label();
@@ -139,9 +155,8 @@ public class MenuController implements Initializable {
                 tt.play();
             }
 
-
-            menuPane.setHalignment(iv1, HPos.CENTER);
-            menuPane.setHalignment(avatarGrid, HPos.CENTER);
+            GridPane.setHalignment(iv1, HPos.CENTER);
+            GridPane.setHalignment(avatarGrid, HPos.CENTER);
             menuPane.add(iv1, 0, 0);
             menuPane.add(avatarGrid, 0, 0);
             menuPane.setAlignment(Pos.CENTER);
@@ -149,42 +164,5 @@ public class MenuController implements Initializable {
             iv1.setOnMouseEntered(hoverAvatar);
             iv1.setOnMouseExited(exitAvatar);
         }
-
-
-        //client = Navigation.getInstance().getClient();
-    }
-
-    @FXML
-    public void playerMessage() throws IOException {
-
-        // se o botão disser "submit", envia mensagem para o servidor com o nome do player, escrito no textfield
-        if (playButton.getText().equals("Submit")) {
-            try {
-                client.sendMessage(playerMessage.getText());
-                serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
-                playButton.setText("Play");
-                playerMessage.setVisible(false);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // depois de enviado o nome, o butão de "submit" transforma-se em "play"; ao ser clickado, o cliente envia uma
-        // mensagem ao servidor a informar que está pronto para jogar; recebe mensagem do servidor a dizer que ta a espera que os outros clientes respondam
-        // cria uma nova thread que fica a espera da mensagem do servidor para começar o jogo, e que faz load da view do jogo qd a recebe
-        else {
-            client.sendMessage("I'm ready");
-            client.receiveMessage();
-            playButton.setVisible(false);
-            serverMessage.setText("Waiting for other players to connect...");
-            new Thread(new Waiting(client.getClientSocket())).start();
-            System.out.println((client.getPlayer()));
-        }
-    }
-    @FXML
-    void goToInstructions(ActionEvent event) {
-        Navigation.getInstance().loadScreen("instructionsview");
-
-
     }
 }
