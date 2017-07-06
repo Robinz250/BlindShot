@@ -70,7 +70,7 @@ public class MenuController implements Initializable {
     }
     @FXML
     void goToInstructions(ActionEvent event) {
-        Navigation.getInstance().loadScreen("instructionsview.fxml");
+        Navigation.getInstance().loadScreen("Instructionsview.fxml");
 
 
     }

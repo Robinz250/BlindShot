@@ -13,7 +13,6 @@ public class InstructionsController {
     @FXML
     void backToMenu(ActionEvent event) {
         Navigation.getInstance().loadScreen("startmenu.fxml");
-
     }
 
 }
