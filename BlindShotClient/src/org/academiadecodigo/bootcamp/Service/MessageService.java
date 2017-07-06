@@ -1,6 +1,8 @@
 package org.academiadecodigo.bootcamp.Service;
 
 
+import org.academiadecodigo.bootcamp.Client;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -17,7 +19,7 @@ public class MessageService implements Service,Runnable{
     private int turn = 0;
     private int numberOfPlayers = 2;
     private String PlayerName ;
-
+    private static Client client;
     private String move;
 
     @Override
@@ -115,5 +117,13 @@ public class MessageService implements Service,Runnable{
 
     public String getPlayerName(){
         return PlayerName;
+    }
+
+    public static Client getClient() {
+        return client;
+    }
+
+    public static void setClient(Client client) {
+        MessageService.client = client;
     }
 }

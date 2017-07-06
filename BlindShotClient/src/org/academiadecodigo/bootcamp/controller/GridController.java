@@ -17,9 +17,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
+import org.academiadecodigo.bootcamp.Service.MessageService;
+import org.academiadecodigo.bootcamp.avatar.Avatar;
 
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -43,6 +44,8 @@ public class GridController implements Initializable {
     private Circle PlayerCircle;
 
     private int turn = 1;
+
+    private static Avatar avatar;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -110,15 +113,20 @@ public class GridController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
+        client = MessageService.getClient();
         this.myGridElements = grid.getChildren();
         System.out.println("grid loaded");
         new Thread(new turnMessage()).start();
 
-
+        System.out.println(avatar.getKillRange());
+        System.out.println(avatar.toString());
         createGridElements();
         createPlayerObject();
 
+    }
+
+    public static void setAvatar(Avatar avatar) {
+        GridController.avatar = avatar;
     }
 
     /**

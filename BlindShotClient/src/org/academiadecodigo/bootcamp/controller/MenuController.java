@@ -1,16 +1,25 @@
 package org.academiadecodigo.bootcamp.controller;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.HPos;
+import javafx.geometry.NodeOrientation;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
+import org.academiadecodigo.bootcamp.Service.MessageService;
 import org.academiadecodigo.bootcamp.Waiting;
+import org.academiadecodigo.bootcamp.avatar.Avatar;
 
-import javax.print.attribute.standard.MediaSize;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -31,9 +40,52 @@ public class MenuController implements Initializable {
     @FXML
     private Label serverMessage;
 
+    @FXML
+    private GridPane menuPane;
+
+    private EventHandler AvatarSelected = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event) {
+            GridController.setAvatar(Avatar.values()[Integer.parseInt(event.getPickResult().getIntersectedNode().getId())]);
+        }
+    };
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
+
+        this.client = new Client();
+        Thread thread = new Thread(client);
+        thread.start();
+        MessageService.setClient(client);
+
+        //create avatars to choose
+
+        for(int i = 0 ; i < Avatar.values().length ; i++){
+            Image image = new Image(Avatar.values()[i].getImage());
+            ImageView iv1 = new ImageView();
+            iv1.setImage(image);
+            iv1.setId(""+i);
+
+            if (i % 2 == 0 && i > 0){
+                iv1.setTranslateX(-180);
+            } else{
+                iv1.setTranslateX(180);
+            }
+
+            if(i == 0){
+                iv1.setTranslateX(0);
+            }
+
+            menuPane.setHalignment(iv1, HPos.CENTER);
+            menuPane.add(iv1,0,0);
+            menuPane.setAlignment(Pos.CENTER);
+            iv1.setOnMouseClicked(AvatarSelected);
+            //System.out.println(Navigation.getInstance().getScene().getWidth());
+        }
+
+
+
+        //client = Navigation.getInstance().getClient();
     }
 
     @FXML
@@ -58,7 +110,7 @@ public class MenuController implements Initializable {
             client.sendMessage("I'm ready");
             client.receiveMessage();
             playButton.setVisible(false);
-            serverMessage.setText("Waiting for other players to connect...");
+            serverMessage.setText("Waiting for other avatar to connect...");
             new Thread(new Waiting(client.getClientSocket())).start();
             System.out.println((client.getPlayer()));
         }

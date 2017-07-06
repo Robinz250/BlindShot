@@ -4,9 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import org.academiadecodigo.bootcamp.controller.GridController;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -69,9 +67,19 @@ public final class Navigation {
         stage.show();
     }
 
+    public Scene getScene() {
+        return scene;
+    }
+
+    public Stage getStage() {
+        return stage;
+    }
+
     public void setClient(Client client) {
         this.client = client;
     }
+
+
 
     public Client getClient() {
         return client;
