@@ -77,6 +77,8 @@ public class GridController implements Initializable {
             } else {
                 seeWereCanPlayerGo();
             }
+
+
         }
     };
 
@@ -379,12 +381,6 @@ public class GridController implements Initializable {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            Thread.sleep(2000);
-                            System.out.println("sleeping");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
                         Navigation.getInstance().loadScreen("gameOver");
                         GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
                         gameOverController.setWinnerLabelText("YOU WIN");

@@ -125,7 +125,7 @@ public class MenuController implements Initializable {
             iv1.getStyleClass().add("initialAvatar");
             iv1.setTranslateY(-30);
             avatarGrid.setText(Avatar.values()[i].getName());
-            avatarGrid.setId("AvatarText");
+            avatarGrid.setId("Text");
             avatarGrid.setTranslateY(70);
             if (i == 0) {
                 TranslateTransition tt = new TranslateTransition(Duration.millis(1495), iv1);
