@@ -9,8 +9,6 @@ import java.net.Socket;
 public class PreGameChat implements Runnable {
 
     private Socket clientSocket;
-    private BufferedReader in;
-    private BufferedWriter out;
     private int player;
 
     public PreGameChat(Socket clientSocket, int player) {
@@ -25,23 +23,20 @@ public class PreGameChat implements Runnable {
             sendMessage(Integer.toString(player+1));
             receiveMessage();
             receiveMessage();
-            sendMessage("f");
-            System.out.println("Thread of pregamechat died");
+            sendMessage("Player " + (player+1) + " is ready to play");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void receiveMessage() throws IOException {
-        System.out.println("receive");
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    private void receiveMessage() throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String message = in.readLine();
         System.out.println(message);
     }
 
-    public void sendMessage(String message) throws IOException {
-        System.out.println("send");
-        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+    private void sendMessage(String message) throws IOException {
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         out.write(message + "\n");
         out.flush();
     }
