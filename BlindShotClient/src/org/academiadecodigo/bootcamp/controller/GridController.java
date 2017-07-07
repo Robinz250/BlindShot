@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.service.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 import org.academiadecodigo.bootcamp.avatar.Avatar;
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -367,7 +368,7 @@ public class GridController implements Initializable {
                     @Override
                     public void run() {
                         Navigation.getInstance().loadScreen("gameOver");
-                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        GameOverController gameOverController = (GameOverController) Navigation.getInstance().getControllers().get("gameOver");
                         gameOverController.setWinnerLabelText("YOU LOOSE");
                     }
                 });
@@ -382,7 +383,7 @@ public class GridController implements Initializable {
                     @Override
                     public void run() {
                         Navigation.getInstance().loadScreen("gameOver");
-                        GameOverController gameOverController = (GameOverController)Navigation.getInstance().getControllers().get("gameOver");
+                        GameOverController gameOverController = (GameOverController) Navigation.getInstance().getControllers().get("gameOver");
                         gameOverController.setWinnerLabelText("YOU WIN");
                     }
                 });
