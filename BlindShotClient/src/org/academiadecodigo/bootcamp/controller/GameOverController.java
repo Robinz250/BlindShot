@@ -1,13 +1,15 @@
 package org.academiadecodigo.bootcamp.controller;
 
-        import javafx.event.ActionEvent;
-        import javafx.fxml.FXML;
-        import javafx.fxml.Initializable;
-        import javafx.scene.control.Button;
-        import javafx.scene.control.Label;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import org.academiadecodigo.bootcamp.Navigation;
 
-        import java.net.URL;
-        import java.util.ResourceBundle;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class GameOverController implements Initializable {
 
@@ -22,12 +24,12 @@ public class GameOverController implements Initializable {
 
     @FXML
     void quit(ActionEvent event) {
-
+        Navigation.getInstance().close();
     }
 
     @FXML
     void restart(ActionEvent event) {
-
+        Navigation.getInstance().loadScreen("startmenu");
     }
 
     @Override

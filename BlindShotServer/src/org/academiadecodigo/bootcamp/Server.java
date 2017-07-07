@@ -24,12 +24,11 @@ public class Server {
     //private Map<Socket, Point> clients = new HashMap<>();
     private int deadPlayers;
 
-    public void init() throws IOException {
+    public void init() throws IOException, InterruptedException {
 
         serverSocket = new ServerSocket(6666);
         clientSockets = new Socket[NUMBER_OF_PLAYERS];
         threads = new Thread[NUMBER_OF_PLAYERS];
-
     }
 
     public void start() throws IOException, InterruptedException {
@@ -133,11 +132,17 @@ public class Server {
                 for (int i = 0; i < clientSockets.length; i++) {
                     try {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
-                        out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + attackRecieve(attacks, i) +"\n");
+                        out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + attackRecieve(attacks, i) + "\n");
                         out.flush();
+                        if (attackRecieve(attacks, i).equals("YOU WIN")) {
+                            start();
+                        }
+
                         System.out.println("turn: " + (turn + 1));
 
                     } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -148,25 +153,25 @@ public class Server {
         }
     }
 
-    public String attackRecieve(String[] attacks, int i) {
+    public String attackRecieve(String[] attacks, int i) throws IOException, InterruptedException {
 
-            System.out.println("player " + i + " x " + players[i].getX());
-            System.out.println("attack x: " + attack.getX());
-            System.out.println("player " + i + " y: " + players[i].getY());
-            System.out.println("attack y: " + attack.getY());
-            System.out.println("who attacked? " + Integer.parseInt(attacks[1]));
-            System.out.println("dead: " + deadPlayers);
-            System.out.println("i: " + i);
+        System.out.println("player " + i + " x " + players[i].getX());
+        System.out.println("attack x: " + attack.getX());
+        System.out.println("player " + i + " y: " + players[i].getY());
+        System.out.println("attack y: " + attack.getY());
+        System.out.println("who attacked? " + Integer.parseInt(attacks[1]));
+        System.out.println("dead: " + deadPlayers);
+        System.out.println("i: " + i);
 
-            if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY() && Integer.parseInt(attacks[1]) != (i+1)) {
-                System.out.println("YOU LOOSE");
-                return "YOU LOOSE";
-            }
+        if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY() && Integer.parseInt(attacks[1]) != (i + 1)) {
+            System.out.println("YOU LOOSE");
+            return "YOU LOOSE";
+        }
 
-            if (((players.length - 1) == deadPlayers) && (players[i].getX() != attack.getX() || players[i].getY() != attack.getY())) {
-                System.out.println("YOU WIN");
-                return "YOU WIN";
-            }
+        if (((players.length - 1) == deadPlayers) && (players[i].getX() != attack.getX() || players[i].getY() != attack.getY())) {
+            System.out.println("YOU WIN");
+            return "YOU WIN";
+        }
         return "MISS";
     }
 }
