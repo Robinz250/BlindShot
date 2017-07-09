@@ -20,7 +20,6 @@
                             <mainClass>org.academiadecodigo.bootcamp.Main</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>server-jar</descriptorRefs>
                 </configuration>
             </plugin>
             <plugin>
