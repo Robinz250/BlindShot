@@ -1,0 +1,46 @@
+.backgroundImage{
+    -fx-background-image : url("../images/startmenu.jpg");
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+
+.gameBg{
+    -fx-background-image : url("../images/startmenu.jpg");
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+
+.avatarHover{
+    -fx-border-color: red;
+}
+
+
+.initialAvatar{
+    -fx-opacity: 0.5;
+}
+
+.avatarSelected{
+    -fx-border-color: red;
+    -fx-opacity: 1;
+}
+
+#Text{
+    -fx-font-size: 16;
+    -fx-font-family: sans-serif;
+    -fx-text-fill: white;
+    -fx-fill: white;
+    -fx-text-alignment: center;
+}
+
+.gridBG{
+    -fx-background-image : url("../images/bg.jpg");
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+
+.Highlight{
+    -fx-effect: innershadow(gaussian, #039ed3, 10, 1.0, 0, 0);
+}
