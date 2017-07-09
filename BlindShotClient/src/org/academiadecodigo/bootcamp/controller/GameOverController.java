@@ -1,13 +1,13 @@
 package org.academiadecodigo.bootcamp.controller;
 
-        import javafx.event.ActionEvent;
-        import javafx.fxml.FXML;
-        import javafx.fxml.Initializable;
-        import javafx.scene.control.Button;
-        import javafx.scene.control.Label;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 
-        import java.net.URL;
-        import java.util.ResourceBundle;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class GameOverController implements Initializable {
 
