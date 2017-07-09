@@ -4,20 +4,22 @@ package org.academiadecodigo.bootcamp.avatar;
  * Created by codecadet on 05/07/17.
  */
 public enum Avatar {
-    ASSASSIN(4,1,"images/Avatar/1.png","Assassin \n Walk 4 - Attack 1"),
-    FATONE(1,4,"images/Avatar/2.png","Fat One \n Walk 1 - Attack 4"),
-    KILLER(3,3,"images/Avatar/3.png","Killer \n Walk 3 - Attack 3");
+    ASSASSIN(3, 1, "images/Avatar/1.jpg", "Assassin \n Walk 3 - Attack 1", "assassin"),
+    BIGONE(2, 2, "images/Avatar/2.jpg", "Fat One \n Walk 2 - Attack 2", "bigOne"),
+    RANGED(1, 3, "images/Avatar/3.jpg", "Ranged \n Walk 1 - Attack 3", "ranged");
 
-    private  int moveRange;
+    private int moveRange;
     private int killRange;
     private String image;
     private String name;
+    private String folder;
 
-    Avatar(int moveRange, int killRange,String image,String name) {
+    Avatar(int moveRange, int killRange, String image, String name, String folder) {
         this.moveRange = moveRange;
         this.killRange = killRange;
         this.image = image;
         this.name = name;
+        this.folder = folder;
     }
 
     public String getImage() {
@@ -50,6 +52,14 @@ public enum Avatar {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
     }
 
     @Override

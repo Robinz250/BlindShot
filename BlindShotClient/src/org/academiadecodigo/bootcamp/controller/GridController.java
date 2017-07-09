@@ -9,12 +9,11 @@ import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Paint;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.service.Client;
@@ -29,8 +28,20 @@ import java.util.*;
 
 public class GridController implements Initializable {
 
-    //All our node in all cells, are in here
+    //All nodes on the game - floor - messages and players.
     private ObservableList<Node> myGridElements;
+
+    //All floor nodes
+    private List<Node> gridPanes;
+
+    //All panes that been attack image
+    private List<Node> paneAttack = new ArrayList<>();
+
+    //List of highlight panes
+    private List<Node> paneHighLight = new ArrayList<>();
+
+    //Node image of player
+    private Image playerImage;
 
     //AttackMode Boolean true if is the Player turn to attack
     private boolean attackMode = false;
@@ -40,7 +51,7 @@ public class GridController implements Initializable {
     @FXML
     private GridPane grid;
 
-    private Circle PlayerCircle;
+    private ImageView playerImageView;
 
     private int turn = 1;
 
@@ -48,8 +59,10 @@ public class GridController implements Initializable {
 
     private static Avatar avatar;
 
+    private BorderPane messagePane = null;
+
     private String HitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
-    private String FloorPane = "-fx-background-color: transparent";
+    private String floorPane = "-fx-background-color: transparent";
 
 
     /**
@@ -61,7 +74,7 @@ public class GridController implements Initializable {
             if (attackMode) {
                 onClickAttack(event);
             } else {
-                onClickchangePlayerPosition(event);
+                onClickChangePlayerPosition(event);
             }
         }
     };
@@ -100,6 +113,8 @@ public class GridController implements Initializable {
     private void onClickAttack(MouseEvent event) {
         Node element = event.getPickResult().getIntersectedNode();
         element.setStyle(HitPane);
+        paneAttack.add(element);
+
         showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
         turn++;
         try {
@@ -130,11 +145,12 @@ public class GridController implements Initializable {
     /**
      * Method that change the player Node Position, to cell that previous been clicked
      */
-    private void onClickchangePlayerPosition(MouseEvent event) {
+    private void onClickChangePlayerPosition(MouseEvent event) {
         if (turn == client.getPlayer()) {
             Node element = event.getPickResult().getIntersectedNode();
-            grid.getChildren().remove(PlayerCircle);
-            grid.add(PlayerCircle, GridPane.getColumnIndex(element), GridPane.getRowIndex(element));
+            changeDirection(element);
+            grid.getChildren().remove(playerImageView);
+            grid.add(playerImageView, GridPane.getColumnIndex(element), GridPane.getRowIndex(element));
             showMessage("Player 1 | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
             try {
                 client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
@@ -158,16 +174,16 @@ public class GridController implements Initializable {
      */
 
     public void createPlayerObject() {
-        PlayerCircle = new Circle();
-        PlayerCircle.setRadius(10);
-        PlayerCircle.setStyle("-fx-background-color: blue");
-        PlayerCircle.setFill(Paint.valueOf("#CCE5FF"));
-        PlayerCircle.setId("Player");
-        PlayerCircle.setFocusTraversable(true);
+        playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/down.png");
+        playerImageView = new ImageView(playerImage);
+        playerImageView.setFitHeight(grid.getRowConstraints().get(1).getPrefHeight() + 40);
+        playerImageView.setFitWidth(grid.getRowConstraints().get(1).getPrefHeight() + 40);
+        System.out.println(grid.getRowConstraints().get(1).getPrefHeight());
+        playerImageView.setId("Player");
 
         int column = (int) (Math.random() * grid.getColumnConstraints().size());
         int row = (int) (Math.random() * grid.getRowConstraints().size());
-        grid.add(PlayerCircle, column, row);
+        grid.add(playerImageView, column, row);
 
         try {
             client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
@@ -175,32 +191,27 @@ public class GridController implements Initializable {
             e.printStackTrace();
         }
 
-        GridPane.setHalignment(PlayerCircle, HPos.CENTER);
-        PlayerCircle.setOnMouseEntered(onHoverPlayer);
-        PlayerCircle.setOnMouseExited(hoverOutPlayer);
+        GridPane.setHalignment(playerImageView, HPos.CENTER);
+        playerImageView.setOnMouseEntered(onHoverPlayer);
+        playerImageView.setOnMouseExited(hoverOutPlayer);
     }
 
     /**
      * Clear grid cells that been painted to highlight the path
      */
     public void clearHighlight() {
-        for (Node node : myGridElements) {
-            if (node instanceof Pane) {
-                if (node.getId().contains("FloorPane")) {
-                    node.setStyle(FloorPane);
-                }
-            }
+        for (Node node : paneHighLight) {
+            node.setStyle(floorPane);
         }
+        paneHighLight.clear();
     }
 
     /**
      * Every pane/ cell is disable , this method put all the enable pane's disabled
      */
     public void clearEnablePanes() {
-        for (Node node : myGridElements) {
-            if (node instanceof Pane) {
-                node.setDisable(true);
-            }
+        for (Node node : gridPanes) {
+            node.setDisable(true);
         }
     }
 
@@ -208,6 +219,7 @@ public class GridController implements Initializable {
      * Create jafaFx Pane in each cell of the Grid
      */
     private void createGridElements() {
+        gridPanes = new ArrayList<>();
         // Get number of Rows and
         int gridColumns = grid.getColumnConstraints().size();
         int gridRows = grid.getRowConstraints().size();
@@ -215,28 +227,25 @@ public class GridController implements Initializable {
         for (int i = 0; i < gridColumns; i++) {
             for (int j = 0; j < gridRows; j++) {
                 GridPane pane = new GridPane();
-                pane.setStyle(FloorPane);
-                pane.setId("FloorPane");
+                pane.setStyle(floorPane);
+                pane.setId("floorPane");
                 pane.setDisable(true);
                 grid.add(pane, i, j);
+                //Add pane to gridPanes List
+                gridPanes.add(pane);
                 pane.setOnMouseClicked(playerAction);
             }
         }
     }
 
     /**
-     * Get player coordenades on hashMap
+     * Get player coordenades on hashMap by string "row" or Column
      */
     private Map<String, Integer> getMyPlayerCoordenates() {
-        for (Node s : myGridElements) {
-            if (s instanceof Circle) {
-                Map<String, Integer> playerPosition = new HashMap<>();
-                playerPosition.put("Column", GridPane.getColumnIndex(s));
-                playerPosition.put("Row", GridPane.getRowIndex(s));
-                return playerPosition;
-            }
-        }
-        return null;
+        Map<String, Integer> playerPosition = new HashMap<>();
+        playerPosition.put("Column", GridPane.getColumnIndex(playerImageView));
+        playerPosition.put("Row", GridPane.getRowIndex(playerImageView));
+        return playerPosition;
     }
 
     /**
@@ -246,54 +255,73 @@ public class GridController implements Initializable {
         int PlayerWalker = avatar.getMoveRange();
         int Prow = getMyPlayerCoordenates().get("Row");
         int Pcolumn = getMyPlayerCoordenates().get("Column");
-        highLightPath(PlayerWalker, Prow, Pcolumn, "red");
+        highLightPath(PlayerWalker, Prow, Pcolumn);
     }
 
     /**
      * Method both use by seeWereCanPlayerGo() and attack() to higligh the path
      * receive the number os cells length, the player row and player column and the color to paint panes
      */
-    private void highLightPath(int pathLenght, int PlayerRow, int PlayerColumn, String color) {
+    private void highLightPath(int pathLenght, int PlayerRow, int PlayerColumn) {
+
         for (int i = 1; i <= pathLenght; i++) {
-            if (getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn) != null) {
-                if (!getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn).getStyle().contains("Hole")) {
-                    getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn).setStyle("-fx-background-color:" + color);
-                }
-                getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn).setDisable(false);
-            }
-            if (getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn) != null) {
-                if (!getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn).getStyle().contains("Hole.png")) {
-                    getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn).setStyle("-fx-background-color:" + color);
-                }
-                getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn).setDisable(false);
-            }
-            if (getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i) != null) {
-                if (!getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i).getStyle().contains("Hole.png")) {
-                    getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i).setStyle("-fx-background-color:" + color);
-                }
-                getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i).setDisable(false);
-            }
-            if (getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i) != null) {
-                if (!getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i).getStyle().contains("Hole.png")) {
-                    getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i).setStyle("-fx-background-color:" + color);
-                }
-                getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i).setDisable(false);
-            }
+
+
+            Node upNodes = getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn);
+            highlightNodes(upNodes);
+
+
+            Node downNodes = getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn);
+            highlightNodes(downNodes);
+
+            Node rightNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i);
+            highlightNodes(rightNodes);
+
+            Node leftNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i);
+            highlightNodes(leftNodes);
         }
+    }
+
+    private void highlightNodes(Node node) {
+
+        String color = "images/Avatar/bigOne/up.png";
+        if (attackMode) {
+            //color = "Orange";
+        } else {
+            //color = "red";
+        }
+
+        if (node != null && !node.getStyle().contains("Hole")) {
+            System.out.println(color);
+            System.out.println("enter");
+            node.setStyle("-fx-background-image:url("+ color +"); -fx-opacity: 1");
+            //node.setStyle("-fx-background-color : red");
+            node.setDisable(false);
+            paneHighLight.add(node);
+            //fadeOut(node);
+        }
+
+    }
+
+    private void fadeOut(Node node) {
+        FadeTransition nodeFade = new FadeTransition(Duration.millis(3000), node);
+        nodeFade.setFromValue(0);
+        nodeFade.setToValue(1);
+        nodeFade.play();
     }
 
     private void attack() {
         int AtakLenght = avatar.getKillRange();
         int PlayerRow = getMyPlayerCoordenates().get("Row");
         int PlayerColumn = getMyPlayerCoordenates().get("Column");
-        highLightPath(AtakLenght, PlayerRow, PlayerColumn, "orange");
+        highLightPath(AtakLenght, PlayerRow, PlayerColumn);
     }
 
     public Node getNodeByRowColumnIndex(int row, int column) {
         Node result = null;
-        for (Node node : myGridElements) {
-            if ((row <= grid.getRowConstraints().size() && row >= 0) || (column <= grid.getColumnConstraints().size() && column >= 0)) {
-                if (GridPane.getRowIndex(node) != null || GridPane.getColumnIndex(node) != null) {
+        for (Node node : gridPanes) {
+            if (GridPane.getRowIndex(node) != null || GridPane.getColumnIndex(node) != null) {
+                if ((row <= grid.getRowConstraints().size() && row >= 0) || column <= grid.getColumnConstraints().size() && column >= 0) {
                     if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
                         result = node;
                         break;
@@ -307,21 +335,22 @@ public class GridController implements Initializable {
     /**
      * show message on top left corner
      */
+
     public void showMessage(String message) {
-        BorderPane rec = new BorderPane(new Text(message));
-        rec.setPadding(new Insets(15));
-        rec.setId("ModalMessage");
-        grid.add(rec, 1, 0);
+        messagePane = new BorderPane(new Text(message));
+        messagePane.setPadding(new Insets(15));
+        messagePane.setId("ModalMessage");
+        grid.add(messagePane, 1, 0);
 
-        rec.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8");
-        rec.setTranslateY(rec.getLayoutY() - 100);
-        PauseTransition pt = new PauseTransition(Duration.millis(1000));
-        TranslateTransition aa = new TranslateTransition(Duration.millis(1000), rec);
-        aa.setByY(150);
-        TranslateTransition bb = new TranslateTransition(Duration.millis(1000), rec);
-        bb.setByY(-150);
+        messagePane.setStyle("-fx-background-color: lawngreen;-fx-opacity: 0.8");
+        messagePane.setTranslateY(messagePane.getLayoutY() - 100);
+        PauseTransition animationPause = new PauseTransition(Duration.millis(1000));
+        TranslateTransition appearAnimation = new TranslateTransition(Duration.millis(1000), messagePane);
+        appearAnimation.setByY(150);
+        TranslateTransition dissapearAnimation = new TranslateTransition(Duration.millis(1000), messagePane);
+        dissapearAnimation.setByY(-150);
 
-        SequentialTransition seqTransition = new SequentialTransition(aa, pt, bb);
+        SequentialTransition seqTransition = new SequentialTransition(appearAnimation, animationPause, dissapearAnimation);
         seqTransition.play();
     }
 
@@ -342,7 +371,7 @@ public class GridController implements Initializable {
 
                     Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
                     element.setStyle(HitPane);
-
+                    paneAttack.add(element);
 
                     Timeline timeline = new Timeline(new KeyFrame(
                             Duration.millis(5000),
@@ -391,11 +420,44 @@ public class GridController implements Initializable {
         }
 
         public void clearAttacks() {
-            for (Node node : myGridElements) {
-                if (node instanceof Pane) {
-                    node.setStyle(FloorPane);
-                }
+            System.out.println("entrei");
+            for (Node node : paneAttack) {
+                node.setStyle(floorPane);
             }
+
+            paneAttack.clear();
+        }
+    }
+
+    public void changeDirection(Node element) {
+
+        int col = grid.getColumnIndex(playerImageView);
+        int row = grid.getRowIndex(playerImageView);
+
+        int futureCol = grid.getColumnIndex(element);
+        int futureRow = grid.getRowIndex(element);
+
+        System.out.println(col + " " + row + " " + futureCol + " " + futureRow);
+
+        if (col < futureCol && row == futureRow) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/right.png");
+            playerImageView.setImage(playerImage);
+        }
+        if (col > futureCol && row == futureRow) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/left.png");
+            playerImageView.setImage(playerImage);
+        }
+        if (row > futureRow && col == futureCol) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/up.png");
+            playerImageView.setImage(playerImage);
+        }
+        if (row < futureRow && col == futureCol) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/down.png");
+            playerImageView.setImage(playerImage);
         }
     }
 }
