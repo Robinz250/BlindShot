@@ -256,39 +256,38 @@ public class GridController implements Initializable {
      * receive the number os cells length, the player row and player column and the color to paint panes
      */
     private void highLightPath(int pathLenght, int PlayerRow, int PlayerColumn) {
-
+            String imageUrl= null;
         for (int i = 1; i <= pathLenght; i++) {
 
+            Node upNodes = getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn);
+            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/up.png\"";
+            highlightNodes(upNodes,imageUrl);
 
-            Node upNodes = getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn);
-            highlightNodes(upNodes);
-
-
-            Node downNodes = getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn);
-            highlightNodes(downNodes);
+            Node downNodes = getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn);
+            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/down.png\"";
+            highlightNodes(downNodes,imageUrl);
 
             Node rightNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i);
-            highlightNodes(rightNodes);
+            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/right.png\"";
+            highlightNodes(rightNodes,imageUrl);
 
             Node leftNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i);
-            highlightNodes(leftNodes);
+            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/left.png\"";
+            highlightNodes(leftNodes,imageUrl);
         }
     }
 
-    private void highlightNodes(Node node) {
+    private void highlightNodes(Node node,String imageUrl) {
+        String nodeBg;
 
-        String color = "images/Avatar/bigOne/up.png";
         if (attackMode) {
-            //color = "Orange";
+            nodeBg = "\"images/Avatar/bigOne/up.png\"";
         } else {
-            //color = "red";
+            nodeBg = imageUrl;
         }
 
         if (node != null && !node.getStyle().contains("Hole")) {
-            System.out.println(color);
-            System.out.println("enter");
-            node.setStyle("-fx-background-image:url("+ color +"); -fx-opacity: 1");
-            //node.setStyle("-fx-background-color : red");
+            node.setStyle("-fx-background-position:center;-fx-background-size:cover;-fx-background-image:url("+ nodeBg +"); -fx-opacity: 1;");
             node.setDisable(false);
             paneHighLight.add(node);
             //fadeOut(node);
