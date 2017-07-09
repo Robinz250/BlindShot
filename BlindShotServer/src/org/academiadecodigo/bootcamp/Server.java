@@ -1,13 +1,9 @@
 package org.academiadecodigo.bootcamp;
 
-import javafx.geometry.Pos;
-
 import java.awt.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by ruimorais on 02/07/17.
@@ -21,7 +17,6 @@ public class Server {
     private int turn = 0;
     private Point players[] = new Point[NUMBER_OF_PLAYERS];
     private Point attack;
-    //private Map<Socket, Point> clients = new HashMap<>();
     private int deadPlayers;
 
     public void init() throws IOException, InterruptedException {
@@ -39,27 +34,36 @@ public class Server {
             threads[i].start();
         }
 
-        for (Thread thread : threads) {
-            thread.join();
-        }
         startGame();
     }
 
-    public void startGame() throws IOException {
+    public void startGame() throws IOException, InterruptedException {
+        for (Thread thread : threads) {
+            thread.join();
+        }
 
         System.out.println("kk");
 
-        for (Socket socket : clientSockets) {
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out.write("Let the games begin! \n");
-            out.flush();
+        for (int i = 0; i < clientSockets.length; i++) {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
+            try {
+                out.write("Let the games begin! \n");
+                out.flush();
+            } catch (IOException e) {
+                reconnect(i);
+                i = 0;
+            }
         }
-
         receivePlayersPosition();
         startGameChat();
+    }
 
-        //createPlayers();
-
+    private void reconnect(int i) throws IOException, InterruptedException {
+                clientSockets[i].close();
+        clientSockets[i] = serverSocket.accept();
+        threads[i] = new Thread(new PreGameChat(clientSockets[i], i));
+        threads[i].start();
+        startGame();
     }
 
     public String receivePlayersPosition() {
@@ -82,18 +86,7 @@ public class Server {
             }
         }
 
-        //convert String to Point
-        //avatar[0] = new Point(collumn, row);
-
         return message;
-    }
-
-    public void gameChat() {
-        //recebe uma string com a informação acerca de para onde o jogador se moveu e onde atacou; atualiza a sua posiçao
-    }
-
-    public void comparePlayers() {
-        //compara a posiçao dos dois jogadores depois de um jogar
     }
 
     public void startGameChat() {
@@ -134,8 +127,16 @@ public class Server {
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
                         out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + attackRecieve(attacks, i) + "\n");
                         out.flush();
-                        if (attackRecieve(attacks, i).equals("YOU WIN")) {
-                            start();
+                        if (attackRecieve(attacks, i).equals("YOU WIN") || attackRecieve(attacks, i).equals("YOU LOOSE")) {
+//                            continue;
+//                        }
+//                        if (attackRecieve(attacks, i).equals("YOU LOOSE") || attackRecieve(attacks, i).equals("YOU WIN")) {
+                            threads[i] = new Thread(new PreGameChat(clientSockets[i], i));
+                            threads[i].start();
+//                            threads[i].join();
+//                            start();
+//                            reconnect(i);
+                            startGame();
                         }
 
                         System.out.println("turn: " + (turn + 1));
@@ -149,7 +150,6 @@ public class Server {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -163,7 +163,7 @@ public class Server {
         System.out.println("dead: " + deadPlayers);
         System.out.println("i: " + i);
 
-        if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY() && Integer.parseInt(attacks[1]) != (i + 1)) {
+        if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY()/* && Integer.parseInt(attacks[1]) != (i + 1)*/) {
             System.out.println("YOU LOOSE");
             return "YOU LOOSE";
         }

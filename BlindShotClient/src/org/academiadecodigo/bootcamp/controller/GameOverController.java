@@ -6,12 +6,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import org.academiadecodigo.bootcamp.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class GameOverController implements Initializable {
+
+    private Client client;
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
 
     @FXML
     private Button quitButton;
@@ -29,7 +36,8 @@ public class GameOverController implements Initializable {
 
     @FXML
     void restart(ActionEvent event) {
-        Navigation.getInstance().loadScreen("startmenu");
+        Navigation.getInstance().back();
+        Navigation.getInstance().back();
     }
 
     @Override

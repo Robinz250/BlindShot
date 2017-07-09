@@ -5,6 +5,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.academiadecodigo.bootcamp.controller.GameOverController;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -55,6 +57,10 @@ public final class Navigation {
             controllers.put(view, fxmlLoader.<Initializable>getController());
             root.getStylesheets().add("/css/style.css");
 
+            if (controllers instanceof GameOverController) {
+                GameOverController goc = (GameOverController) getControllers();
+                goc.setClient(client);
+            }
 
             scene = new Scene(root, WIDTH, HEIGHT);
             scenes.push(scene);

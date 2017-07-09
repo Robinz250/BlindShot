@@ -1,5 +1,7 @@
 package org.academiadecodigo.bootcamp;
 
+import org.academiadecodigo.bootcamp.controller.GameOverController;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -71,5 +73,9 @@ public class Client implements Runnable {
 
     public Socket getClientSocket() {
         return clientSocket;
+    }
+
+    private void clientNavigation() {
+        Navigation.getInstance().setClient(this);
     }
 }
