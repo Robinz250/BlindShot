@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -14,68 +15,88 @@ import java.util.Map;
  */
 public class Server {
 
-    public static final int NUMBER_OF_PLAYERS = 2;
     private ServerSocket serverSocket;
-    private Socket[] clientSockets;
+    private Client[] clients;
+    public static final int NUMBER_OF_CLIENTS = 3;
+    private GameState gameState;
+    private int turn;
     private Thread[] threads;
-    private int turn = 0;
-    private Point players[];
-    private Point attack;
-    private int deadPlayers;
+    private LinkedList<Integer> deaths;
 
-    public void init() throws IOException {
-
-        serverSocket = new ServerSocket(6666);
-        clientSockets = new Socket[NUMBER_OF_PLAYERS];
-        threads = new Thread[NUMBER_OF_PLAYERS];
-        players = new Point[NUMBER_OF_PLAYERS];
-
+    public void init() {
+        try {
+            serverSocket = new ServerSocket(6666);
+            clients = new Client[NUMBER_OF_CLIENTS];
+            gameState = GameState.PREGAME;
+            threads = new Thread[NUMBER_OF_CLIENTS];
+            deaths = new LinkedList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void start() throws IOException, InterruptedException {
 
-        for (int i = 0; i < clientSockets.length; i++) {
-            clientSockets[i] = serverSocket.accept();
-            threads[i] = new Thread(new PreGameChat(clientSockets[i], i));
+        for (int i = 0; i < clients.length; i++) {
+            clients[i] = new Client(serverSocket.accept(), i+1);
+            System.out.println("connected");
+            threads[i] = new Thread(new MessageService(clients[i]));
             threads[i].start();
         }
 
-        for (Thread thread : threads) {
-            thread.join();
-        }
-
+        System.out.println("Pregame is over");
+        changeState(GameState.GAME);
         startGame();
-
     }
 
-    public void startGame() throws IOException {
-
-        for (Socket socket : clientSockets) {
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out.write("Let the games begin! \n");
-            out.flush();
-        }
-
-        receivePlayersPosition();
-        startGameLogic();
-
+    private void changeState(GameState gameState) {
+        this.gameState = gameState;
     }
 
-    private void receivePlayersPosition() { //se calhar faz mais sentido ser o servidor a decidir as posições e a passá-las aos clientes..
-
-        String message;
-
-        for (int i = 0; i < clientSockets.length; i++) {
+    private void startGame() throws IOException, InterruptedException {
+        for (Thread thread : threads) {
             try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[i].getInputStream()));
+                thread.join();
+                System.out.println("thread died");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        for (int i = 0; i < clients.length; i++) {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clients[i].getClientSocket().getOutputStream()));
+            try {
+                System.out.println("let the games begin");
+                out.write("Let the games begin! \n");
+                out.flush();
 
+            } catch (IOException e) {
+                clients[i].getClientSocket().close();
+                reconnect(i);
+                i = 0;
+            }
+        }
+        System.out.println("write your position");
+        receivePlayersPosition();
+        System.out.println("start game logic");
+        startGameLogic();
+    }
+
+    private void reconnect(int i) throws IOException, InterruptedException {
+        clients[i] = new Client(serverSocket.accept(), i+1);
+        threads[i] = new Thread(new MessageService(clients[i]));
+        threads[i].start();
+        startGame();
+    }
+
+    private void receivePlayersPosition() {
+        String message;
+        for (int i = 0; i < clients.length; i++) {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(clients[i].getClientSocket().getInputStream()));
                 message = in.readLine();
-                System.out.println(message);
-                String[] string = message.split(" ");
-                for (int j = 0; j < players.length; j++) {
-                    players[j] = new Point(Integer.parseInt(string[3]), Integer.parseInt(string[5]));
-                }
-
+                String[] divide = message.split(" ");
+                System.out.println("Player " + (i+1) + " position: " + Integer.parseInt(divide[0]) + " " + Integer.parseInt(divide[1]));
+                clients[i].setPoint(new Point(Integer.parseInt(divide[0]), Integer.parseInt(divide[1])));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -83,26 +104,64 @@ public class Server {
     }
 
     private void startGameLogic() {
-
-        while (turn < clientSockets.length) {
-
-            receiveMove();
-            String attack = receiveAttack();
+        while (turn < clients.length) {
+            System.out.println("It's player " + (turn+1) + " turn");
+            String message = receiveMessage(); // recebe mensagem com a posição do cliente e onde ele atacou - ID | POSIÇÃO | ATAQUE
+            String[] divide = message.split(" ");
+            System.out.println("Player " + (turn+1) + " attacked " + Integer.parseInt(divide[2]) + " " + Integer.parseInt(divide[3]));
+            updatePositions(divide);
+            String result = checkHit(divide); // verifica se algum cliente está na posição atacada
+            sendMessage("Player " + (turn+1) + " " + result + " " + Integer.parseInt(divide[2]) + " " + Integer.parseInt(divide[3])); // envia mensagem aos restantes clientes com MISS/HIT
+            System.out.println("turn0: " + turn);
             turn++;
-            if (turn == clientSockets.length) {
+            System.out.println("turn1: " + turn);
+            if (turn == clients.length) {
                 turn = 0;
             }
-            checkDeath();
-            sendResult(attack);
+            System.out.println("turn2: " + turn);
+            if (deaths.contains(turn)) {
+                turn++;
+                continue;
+            }
+            /*if (turn == clients.length) {
+                turn = 0;
+            }
+            System.out.println("turn3: " + turn);
+            if (deaths.contains(turn)) {
+                turn++;
+            }*/
         }
     }
 
-    private void sendResult(String attack) {
-        String[] attackSplited = attack.split(" ");
-        for (int i = 0; i < clientSockets.length; i++) {
+    private String receiveMessage() {
+        String message = null;
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clients[turn].getClientSocket().getInputStream()));
+            message = in.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(message);
+        return message;
+    }
+
+    public String checkHit(String[] divide) {
+        for (int i = 0; i < clients.length; i++) {
+            if (turn != i && clients[i].getPoint().getX() == Integer.parseInt(divide[2]) && clients[i].getPoint().getY() == Integer.parseInt(divide[3])) {
+                System.out.println("Player " + (i+1) + " was hit!");
+                deaths.add(i);
+                return "HIT Player " + (i + 1);
+            }
+        }
+        System.out.println("Player " + (turn+1) + " missed!");
+        return "MISSED . .";
+    }
+
+    public void sendMessage(String message) {
+        for (int i = 0; i < clients.length; i++) {
             try {
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSockets[i].getOutputStream()));
-                out.write(Integer.toString((turn + 1)) + " | " + attack + " | " + checkHit(attackSplited, i) +"\n");
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clients[i].getClientSocket().getOutputStream()));
+                out.write(message + "\n");
                 out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -110,50 +169,11 @@ public class Server {
         }
     }
 
-    private String checkHit(String[] attacks, int i) {
-        if (players[i].getX() == attack.getX() && players[i].getY() == attack.getY() && Integer.parseInt(attacks[1]) != (i+1)) {
-            System.out.println("YOU LOOSE");
-            return "YOU LOOSE";
-            }
-        if (((players.length - 1) == deadPlayers) && (players[i].getX() != attack.getX() || players[i].getY() != attack.getY())) {
-            System.out.println("YOU WIN");
-            return "YOU WIN";
-            }
-        return "MISS";
-    }
-
-    private void receiveMove() {
-        String move;
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
-            move = in.readLine();
-            String[] moves = move.split(" ");
-            System.out.println(move);
-            players[turn].setLocation(Integer.parseInt(moves[7]), (Integer.parseInt(moves[11])));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String receiveAttack() {
-        String attack = null;
-        String[] attackSplited;
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSockets[turn].getInputStream()));
-            attack = in.readLine();
-            System.out.println(attack);
-            attackSplited = attack.split(" ");
-            this.attack = new Point(Integer.parseInt(attackSplited[7]), (Integer.parseInt(attackSplited[11])));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return attack;
-    }
-
-    private void checkDeath() {
-        for (Point point : players) {
-            if (point.getX() == this.attack.getX() && point.getY() == this.attack.getY()) {
-                deadPlayers++;
+    public void updatePositions(String[] divide) {
+        for (int i = 0; i < clients.length; i++) {
+            if (i == turn) {
+                clients[i].getPoint().setLocation(Integer.parseInt(divide[0]), Integer.parseInt(divide[1]));
+                System.out.println("Player " + (i+1) + " changed position to " + Integer.parseInt(divide[0]) + " " + Integer.parseInt(divide[1]));
             }
         }
     }

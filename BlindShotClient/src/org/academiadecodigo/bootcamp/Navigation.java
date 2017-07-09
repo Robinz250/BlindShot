@@ -5,11 +5,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.academiadecodigo.bootcamp.service.Client;
+import org.academiadecodigo.bootcamp.service.GameCommunication;
+import org.academiadecodigo.bootcamp.service.GameService;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -19,11 +19,13 @@ public final class Navigation {
 
     private static Navigation navigation = null;
     private Stage stage;
-    public static final int WIDTH = 860;
-    public static final int HEIGHT = 600;
-    private Map<String, Initializable> controllers = new HashMap<>();
-    private Client client;
-    private LinkedList<Scene> scenes = new LinkedList<>();
+    private GameService gameService;
+    private GameCommunication gameCommunication;
+    private Map<String, Initializable> controllers;
+
+    private Navigation(){
+        controllers = new HashMap<>();
+    }
 
     public static synchronized Navigation getInstance() {
         if (navigation == null) {
@@ -37,48 +39,37 @@ public final class Navigation {
     }
 
     public void loadScreen(String view) {
-
+        FXMLLoader fxmlLoader;
+        fxmlLoader = new FXMLLoader(getClass().getResource(view + ".fxml"));
         try {
-            FXMLLoader fxmlLoader;
-            fxmlLoader = new FXMLLoader(getClass().getResource("view/"+ view +".fxml"));
             Parent root = fxmlLoader.load();
-            fxmlLoader.getController();
-            controllers.put(view, fxmlLoader.<Initializable>getController());
             root.getStylesheets().add("/css/style.css");
-            Scene scene = new Scene(root, WIDTH, HEIGHT);
-            scenes.push(scene);
-            setScene(scene);
+            controllers.put(view, fxmlLoader.getController());
+            Scene scene = new Scene(root, 860, 600);
+            stage.setScene(scene);
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void setScene(Scene scene) {
-        stage.setScene(scene);
-        stage.show();
+    public GameService getGameService() {
+        return gameService;
     }
 
-    public void back() {
-        if (scenes.size() == 1) {
-            return;
-        }
-        scenes.pop();
-        setScene(scenes.peek());
+    public void setGameService(GameService gameService) {
+        this.gameService = gameService;
     }
 
-    public void close() {
-        stage.close();
+    public GameCommunication getGameCommunication() {
+        return gameCommunication;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setGameCommunication(GameCommunication gameCommunication) {
+        this.gameCommunication = gameCommunication;
     }
 
     public Map<String, Initializable> getControllers() {
         return controllers;
-    }
-
-    public Client getClient() {
-        return client;
     }
 }
