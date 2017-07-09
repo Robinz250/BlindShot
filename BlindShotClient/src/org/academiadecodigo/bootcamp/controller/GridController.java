@@ -14,11 +14,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.academiadecodigo.bootcamp.service.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 import org.academiadecodigo.bootcamp.avatar.Avatar;
+import org.academiadecodigo.bootcamp.service.GameCommunication;
+import org.academiadecodigo.bootcamp.service.GameService;
 
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -46,8 +50,6 @@ public class GridController implements Initializable {
     //AttackMode Boolean true if is the Player turn to attack
     private boolean attackMode = false;
 
-    private Client client;
-
     @FXML
     private GridPane grid;
 
@@ -64,6 +66,9 @@ public class GridController implements Initializable {
     private String HitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
     private String floorPane = "-fx-background-color: transparent";
 
+    private GameCommunication gameCommunication;
+    private GameService gameService;
+    private String move;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -112,13 +117,10 @@ public class GridController implements Initializable {
 
     private void onClickAttack(MouseEvent event) {
         Node element = event.getPickResult().getIntersectedNode();
-        element.setStyle(HitPane);
-        paneAttack.add(element);
-
-        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
-        turn++;
+        String hitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
+        element.setStyle(hitPane);
         try {
-            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
+            gameService.sendMessage(move + " " + GridPane.getRowIndex(element) + " " + GridPane.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -131,11 +133,13 @@ public class GridController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
-        this.myGridElements = grid.getChildren();
-        new Thread(new turnMessage()).start();
+        myGridElements = grid.getChildren();
+        gameService = Navigation.getInstance().getGameService(); // mudar isto; criar service registry
+        gameCommunication = Navigation.getInstance().getGameCommunication();
+        myGridElements = grid.getChildren();
         createGridElements();
         createPlayerObject();
+        new Thread(gameCommunication).start();
     }
 
     public static void setAvatar(Avatar avatar) {
@@ -146,26 +150,15 @@ public class GridController implements Initializable {
      * Method that change the player Node Position, to cell that previous been clicked
      */
     private void onClickChangePlayerPosition(MouseEvent event) {
-        if (turn == client.getPlayer()) {
+        if (gameCommunication.getTurn() == gameService.getPlayer().getId()) {
             Node element = event.getPickResult().getIntersectedNode();
-            changeDirection(element);
             grid.getChildren().remove(playerImageView);
             grid.add(playerImageView, GridPane.getColumnIndex(element), GridPane.getRowIndex(element));
-            showMessage("Player 1 | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
-            try {
-                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
-                System.out.println("send");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            move = GridPane.getRowIndex(element) + " " + GridPane.getColumnIndex(element);
             clearEnablePanes();
             attackMode = !attackMode;
         } else {
             showMessage("It's not your turn, MOTHERFUCKER!!!");
-        }
-
-        if (turn == Client.numberOfPlayers + 1) {
-            turn = 1;
         }
     }
 
@@ -186,7 +179,7 @@ public class GridController implements Initializable {
         grid.add(playerImageView, column, row);
 
         try {
-            client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
+            gameService.sendMessage(Integer.toString(column) + " " + Integer.toString(row));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -354,7 +347,7 @@ public class GridController implements Initializable {
         seqTransition.play();
     }
 
-    private class turnMessage implements Runnable {
+    /*private class turnMessage implements Runnable {
 
         @Override
         public void run() {
@@ -427,7 +420,7 @@ public class GridController implements Initializable {
 
             paneAttack.clear();
         }
-    }
+    }*/
 
     public void changeDirection(Node element) {
 
@@ -458,6 +451,24 @@ public class GridController implements Initializable {
             System.out.println("enter");
             playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/down.png");
             playerImageView.setImage(playerImage);
+        }
+    }
+
+    public void drawAttack(int col, int row) {
+        Node element = getNodeByRowColumnIndex(col, row);
+        element.setStyle(HitPane);
+
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.millis(5000),
+                ae -> clearAttacks()));
+        timeline.play();
+    }
+
+    public void clearAttacks() {
+        for (Node node : myGridElements) {
+            if (node instanceof Pane) {
+                node.setStyle(floorPane);
+            }
         }
     }
 }

@@ -20,20 +20,20 @@ public class Waiting implements Runnable {
 
     @Override
     public void run() {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                String message;
-                message = in.readLine();
-                System.out.println(message);
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Navigation.getInstance().loadScreen("grid");
-                    }
-                });
-            } catch (IOException e) {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String message;
+            message = in.readLine();
+            System.out.println(message);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Navigation.getInstance().loadScreen("grid");
+                }
+            });
+        } catch (IOException e) {
                 e.printStackTrace();
-            }
-
         }
+
     }
+}
