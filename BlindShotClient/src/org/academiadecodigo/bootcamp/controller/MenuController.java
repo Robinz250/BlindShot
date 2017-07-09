@@ -110,6 +110,23 @@ public class MenuController implements Initializable {
     public void playerMessage() throws IOException {
         if (NameIsEmpty() && avatarIsSelected()) {
             errorText.setText("");
+            if (playButton.getText().equals("Submit")) {
+                try {
+                    client.sendMessage(playerMessage.getText());
+                    serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
+                    playButton.setText("Play");
+                    playerMessage.setVisible(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                client.sendMessage("I'm ready");
+                client.receiveMessage();
+                playButton.setVisible(false);
+                serverMessage.setText("Waiting for other players to connect...");
+                new Thread(new Waiting(client.getClientSocket())).start();
+                System.out.println((client.getPlayer()));
+            }
         } else {
             if (!NameIsEmpty()) {
                 playerMessage.setStyle("-fx-border-color: red");
@@ -137,23 +154,6 @@ public class MenuController implements Initializable {
                 }
                 errorText.setText("Choose a Player");
             }
-        }
-        if (playButton.getText().equals("Submit")) {
-            try {
-                client.sendMessage(playerMessage.getText());
-                serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
-                playButton.setText("Play");
-                playerMessage.setVisible(false);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            client.sendMessage("I'm ready");
-            client.receiveMessage();
-            playButton.setVisible(false);
-            serverMessage.setText("Waiting for other players to connect...");
-            new Thread(new Waiting(client.getClientSocket())).start();
-            System.out.println((client.getPlayer()));
         }
     }
 
