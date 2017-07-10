@@ -19,10 +19,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.academiadecodigo.bootcamp.service.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 import org.academiadecodigo.bootcamp.Waiting;
 import org.academiadecodigo.bootcamp.avatar.Avatar;
+import org.academiadecodigo.bootcamp.service.GameService;
 
 import java.io.IOException;
 import java.net.URL;
@@ -33,8 +33,8 @@ import java.util.ResourceBundle;
  */
 public class MenuController implements Initializable {
 
-    private Client client;
 
+    private GameService gameService;
     private Node node;
 
     @FXML
@@ -102,7 +102,7 @@ public class MenuController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
+        gameService = Navigation.getInstance().getGameService();
         chooseAvatar();
     }
 
@@ -112,20 +112,21 @@ public class MenuController implements Initializable {
             errorText.setText("");
             if (playButton.getText().equals("Submit")) {
                 try {
-                    client.sendMessage(playerMessage.getText());
-                    serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + client.getPlayer());
+                    gameService.sendMessage(playerMessage.getText());
+                    String id = gameService.receiveMessage();
+                    serverMessage.setText("Hello, " + playerMessage.getText() + "! You will be player " + id);
+                    Navigation.getInstance().getGameService().getPlayer().setId(Integer.parseInt(id));
                     playButton.setText("Play");
                     playerMessage.setVisible(false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                client.sendMessage("I'm ready");
-                client.receiveMessage();
+                gameService.sendMessage("I'm ready");
+                gameService.receiveMessage();
                 playButton.setVisible(false);
                 serverMessage.setText("Waiting for other players to connect...");
-                new Thread(new Waiting(client.getClientSocket())).start();
-                System.out.println((client.getPlayer()));
+                new Thread(new Waiting(gameService.getPlayer().getClientSocket())).start();
             }
         } else {
             if (!NameIsEmpty()) {

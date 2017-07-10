@@ -15,7 +15,7 @@
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-        <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quit" prefHeight="65.0" prefWidth="154.0" text="Quit" translateX="90.0" translateY="160.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+        <Button fx:id="quitButton" mnemonicParsing="false" onAction="#quit" prefHeight="65.0" prefWidth="154.0" text="Quit" translateY="160.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
             <font>
                 <Font size="31.0" />
             </font>
@@ -25,10 +25,5 @@
                 <Font name="DejaVu Sans Mono Bold" size="52.0" />
             </font>
         </Label>
-        <Button fx:id="restartButton" contentDisplay="CENTER" mnemonicParsing="false" onAction="#restart" prefHeight="65.0" prefWidth="154.0" text="Restart" translateX="-90.0" translateY="160.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-            <font>
-                <Font size="31.0" />
-            </font>
-        </Button>
    </children>
 </GridPane>

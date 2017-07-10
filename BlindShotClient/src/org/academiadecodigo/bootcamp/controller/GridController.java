@@ -1,7 +1,6 @@
 package org.academiadecodigo.bootcamp.controller;
 
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -16,13 +15,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.academiadecodigo.bootcamp.service.Client;
 import org.academiadecodigo.bootcamp.Navigation;
 import org.academiadecodigo.bootcamp.avatar.Avatar;
+import org.academiadecodigo.bootcamp.service.GameCommunication;
+import org.academiadecodigo.bootcamp.service.GameService;
 
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 
@@ -46,8 +44,6 @@ public class GridController implements Initializable {
     //AttackMode Boolean true if is the Player turn to attack
     private boolean attackMode = false;
 
-    private Client client;
-
     @FXML
     private GridPane grid;
 
@@ -59,11 +55,12 @@ public class GridController implements Initializable {
 
     private static Avatar avatar;
 
-    private BorderPane messagePane = null;
-
-    private String HitPane = "-fx-background-position:center;-fx-background-size:cover;-fx-background-image:url(\"images/attack.png\"); -fx-opacity: 1;";
+    private String HitPane = "-fx-background-image: url('images/attack.png');-fx-background-size: cover;-fx-background-position: center";
     private String floorPane = "-fx-background-color: transparent";
 
+    private GameCommunication gameCommunication;
+    private GameService gameService;
+    private String move;
 
     /**
      * Mouse click on empty cell, the player will do action between Attack or Move.
@@ -112,13 +109,11 @@ public class GridController implements Initializable {
 
     private void onClickAttack(MouseEvent event) {
         Node element = event.getPickResult().getIntersectedNode();
-        element.setStyle(HitPane);
-        paneAttack.add(element);
-
-        showMessage("Player " + client.getPlayer() + " | Attack | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
-        turn++;
+        changeDirection(element);
+        String hitPane = HitPane;
+        element.setStyle(hitPane);
         try {
-            client.sendMessage("Player " + client.getPlayer() + " | Attack | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
+            gameService.sendMessage(move + " " + GridPane.getRowIndex(element) + " " + GridPane.getColumnIndex(element));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -131,11 +126,13 @@ public class GridController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client = Navigation.getInstance().getClient();
-        this.myGridElements = grid.getChildren();
-        new Thread(new turnMessage()).start();
+        myGridElements = grid.getChildren();
+        gameService = Navigation.getInstance().getGameService(); // mudar isto; criar service registry
+        gameCommunication = Navigation.getInstance().getGameCommunication();
+        myGridElements = grid.getChildren();
         createGridElements();
         createPlayerObject();
+        new Thread(gameCommunication).start();
     }
 
     public static void setAvatar(Avatar avatar) {
@@ -146,26 +143,48 @@ public class GridController implements Initializable {
      * Method that change the player Node Position, to cell that previous been clicked
      */
     private void onClickChangePlayerPosition(MouseEvent event) {
-        if (turn == client.getPlayer()) {
+        if (gameCommunication.getTurn() == gameService.getPlayer().getId()) {
             Node element = event.getPickResult().getIntersectedNode();
             changeDirection(element);
             grid.getChildren().remove(playerImageView);
             grid.add(playerImageView, GridPane.getColumnIndex(element), GridPane.getRowIndex(element));
-            showMessage("Player 1 | Move | Row | " + GridPane.getRowIndex(element) + " | Column | " + GridPane.getColumnIndex(element));
-            try {
-                client.sendMessage("Player " + client.getPlayer() + " | Move | Row | " + grid.getRowIndex(element) + " | Column | " + grid.getColumnIndex(element));
-                System.out.println("send");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            move = GridPane.getRowIndex(element) + " " + GridPane.getColumnIndex(element);
             clearEnablePanes();
             attackMode = !attackMode;
         } else {
             showMessage("It's not your turn, MOTHERFUCKER!!!");
         }
+    }
 
-        if (turn == Client.numberOfPlayers + 1) {
-            turn = 1;
+    public void changeDirection(Node element) {
+
+        int col = grid.getColumnIndex(playerImageView);
+        int row = grid.getRowIndex(playerImageView);
+
+        int futureCol = grid.getColumnIndex(element);
+        int futureRow = grid.getRowIndex(element);
+
+        System.out.println(col + " " + row + " " + futureCol + " " + futureRow);
+
+        if (col < futureCol && row == futureRow) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/right.png");
+            playerImageView.setImage(playerImage);
+        }
+        if (col > futureCol && row == futureRow) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/left.png");
+            playerImageView.setImage(playerImage);
+        }
+        if (row > futureRow && col == futureCol) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/up.png");
+            playerImageView.setImage(playerImage);
+        }
+        if (row < futureRow && col == futureCol) {
+            System.out.println("enter");
+            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/down.png");
+            playerImageView.setImage(playerImage);
         }
     }
 
@@ -178,7 +197,6 @@ public class GridController implements Initializable {
         playerImageView = new ImageView(playerImage);
         playerImageView.setFitHeight(grid.getRowConstraints().get(1).getPrefHeight() + 40);
         playerImageView.setFitWidth(grid.getRowConstraints().get(1).getPrefHeight() + 40);
-        System.out.println(grid.getRowConstraints().get(1).getPrefHeight());
         playerImageView.setId("Player");
 
         int column = (int) (Math.random() * grid.getColumnConstraints().size());
@@ -186,7 +204,7 @@ public class GridController implements Initializable {
         grid.add(playerImageView, column, row);
 
         try {
-            client.sendMessage("Player " + client.getPlayer() + " column: " + Integer.toString(column) + " row: " + Integer.toString(row));
+            gameService.sendMessage(Integer.toString(column) + " " + Integer.toString(row));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -306,12 +324,6 @@ public class GridController implements Initializable {
 
     }
 
-    private void fadeOut(Node node) {
-        FadeTransition nodeFade = new FadeTransition(Duration.millis(2000), node);
-        nodeFade.setFromValue(1);
-        nodeFade.setToValue(0);
-        nodeFade.play();
-    }
 
     private void attack() {
         int AtakLenght = avatar.getKillRange();
@@ -340,7 +352,7 @@ public class GridController implements Initializable {
      */
 
     public void showMessage(String message) {
-        messagePane = new BorderPane(new Text(message));
+        BorderPane messagePane = new BorderPane(new Text(message));
         messagePane.setPadding(new Insets(15));
         messagePane.setId("ModalMessage");
         grid.add(messagePane, 1, 0);
@@ -357,110 +369,25 @@ public class GridController implements Initializable {
         seqTransition.play();
     }
 
-    private class turnMessage implements Runnable {
 
-        @Override
-        public void run() {
-            String message;
-            while (true) {
-                try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
-                    message = in.readLine();
-                    System.out.println(message);
-                    String[] divide;
-                    divide = message.split(" \\| ");
-                    turn = Integer.parseInt(divide[0]);
-                    winOrLose = divide[7];
 
-                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
-                    element.setStyle(HitPane);
-                    paneAttack.add(element);
+    public void drawAttack(int col, int row) {
+        Node element = getNodeByRowColumnIndex(col, row);
 
-                    Timeline timeline = new Timeline(new KeyFrame(
-                            Duration.millis(5000),
-                            ae -> clearAttacks()));
-                    timeline.play();
-
-                    winOrLose();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        private void winOrLose() {
-            if (winOrLose.equals("YOU LOOSE")) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Navigation.getInstance().loadScreen("gameOver");
-                        GameOverController gameOverController = (GameOverController) Navigation.getInstance().getControllers().get("gameOver");
-                        gameOverController.setWinnerLabelText("YOU LOOSE");
-                    }
-                });
-
-            } else if (winOrLose.equals("YOU WIN")) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Navigation.getInstance().loadScreen("gameOver");
-                        GameOverController gameOverController = (GameOverController) Navigation.getInstance().getControllers().get("gameOver");
-                        gameOverController.setWinnerLabelText("YOU WIN");
-                    }
-                });
-            }
-        }
-
-        public void clearAttacks() {
-            System.out.println("entrei");
-            for (Node node : paneAttack) {
-                node.setStyle(floorPane);
-            }
-
-            paneAttack.clear();
-        }
+        String hitPane = HitPane;
+        element.setStyle(hitPane);
+        paneAttack.add(element);
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.millis(5000),
+                ae -> clearAttacks()));
+        timeline.play();
     }
 
-    public void changeDirection(Node element) {
-
-        int col = grid.getColumnIndex(playerImageView);
-        int row = grid.getRowIndex(playerImageView);
-
-        int futureCol = grid.getColumnIndex(element);
-        int futureRow = grid.getRowIndex(element);
-
-        System.out.println(col + " " + row + " " + futureCol + " " + futureRow);
-
-        if (col < futureCol && row == futureRow) {
-            System.out.println("enter");
-            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/right.png");
-            playerImageView.setImage(playerImage);
+    public void clearAttacks() {
+        for (Node node : paneAttack) {
+            node.setStyle(floorPane);
         }
-        if (col > futureCol && row == futureRow) {
-            System.out.println("enter");
-            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/left.png");
-            playerImageView.setImage(playerImage);
-        }
-        if (row > futureRow && col == futureCol) {
-            System.out.println("enter");
-            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/up.png");
-            playerImageView.setImage(playerImage);
-        }
-        if (row < futureRow && col == futureCol) {
-            System.out.println("enter");
-            playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/down.png");
-            playerImageView.setImage(playerImage);
-        }
+
+        paneAttack.clear();
     }
 }
