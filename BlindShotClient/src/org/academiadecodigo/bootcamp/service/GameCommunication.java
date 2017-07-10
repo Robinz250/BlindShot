@@ -69,17 +69,11 @@ public class GameCommunication implements Runnable {
                 }
                 System.out.println("turn" + turn);
                 System.out.println(player.isDead());
-                if (deaths.contains(turn)) {
+                if (deaths.contains(turn) && turn < GameService.NUMBER_OF_PLAYERS) {
                     turn++;
                 }
-                System.out.println("turn: " + turn);
-                if (turn == GameService.NUMBER_OF_PLAYERS + 1) {
+                if (deaths.contains(turn) && turn == GameService.NUMBER_OF_PLAYERS) {
                     turn = 1;
-                }
-                System.out.println("turn" + turn);
-                System.out.println(player.isDead());
-                if (deaths.contains(turn)) {
-                    turn++;
                 }
                 try {
                     Thread.sleep(2000);
