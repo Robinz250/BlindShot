@@ -49,6 +49,7 @@ public final class Navigation {
             controllers.put(view, fxmlLoader.getController());
             Scene scene = new Scene(root, 860, 600);
             stage.setScene(scene);
+            scenes.push(scene);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
