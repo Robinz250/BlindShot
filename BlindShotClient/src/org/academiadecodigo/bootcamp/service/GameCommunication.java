@@ -43,7 +43,7 @@ public class GameCommunication implements Runnable {
                             e.printStackTrace();
                         }
                         Navigation.getInstance().loadScreen("gameOver");
-                        ((GameOverController) Navigation.getInstance().getControllers().get("gameOver")).setWinnerLabelText("YOU LOOSE");
+                        ((GameOverController) Navigation.getInstance().getControllers().get("gameOver")).setWinnerLabelText("YOU LOSE");
                     }
                     }
                 });

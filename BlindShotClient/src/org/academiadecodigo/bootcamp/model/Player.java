@@ -10,14 +10,12 @@ import java.net.Socket;
 public class Player {
 
     private Socket clientSocket;
-    private Point point;
     private int id;
     private boolean dead;
 
     public void init() {
         try {
             clientSocket = new Socket("localhost", 6666);
-            point = new Point(10, 10);
         } catch (IOException e) {
             e.printStackTrace();
         }
