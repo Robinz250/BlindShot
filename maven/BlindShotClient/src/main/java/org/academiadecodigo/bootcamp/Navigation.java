@@ -42,7 +42,7 @@ public final class Navigation {
 
     public void loadScreen(String view) {
         FXMLLoader fxmlLoader;
-        fxmlLoader = new FXMLLoader(getClass().getResource("view/" + view + ".fxml"));
+        fxmlLoader = new FXMLLoader(getClass().getResource("/view/" + view + ".fxml"));
         try {
             Parent root = fxmlLoader.load();
             root.getStylesheets().add("/css/style.css");

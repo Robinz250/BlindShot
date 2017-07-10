@@ -193,7 +193,7 @@ public class GridController implements Initializable {
      */
 
     public void createPlayerObject() {
-        playerImage = new Image("images/Avatar/" + avatar.getFolder() + "/down.png");
+        playerImage = new Image("/images/Avatar/" + avatar.getFolder() + "/down.png");
         playerImageView = new ImageView(playerImage);
         playerImageView.setFitHeight(grid.getRowConstraints().get(1).getPrefHeight() + 40);
         playerImageView.setFitWidth(grid.getRowConstraints().get(1).getPrefHeight() + 40);
@@ -285,19 +285,19 @@ public class GridController implements Initializable {
         for (int i = 1; i <= pathLenght; i++) {
 
             Node upNodes = getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn);
-            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/up.png\"";
+            imageUrl = "\"/images/Avatar/" + avatar.getFolder() + "/up.png\"";
             highlightNodes(upNodes, imageUrl);
 
             Node downNodes = getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn);
-            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/down.png\"";
+            imageUrl = "\"/images/Avatar/" + avatar.getFolder() + "/down.png\"";
             highlightNodes(downNodes, imageUrl);
 
             Node rightNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i);
-            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/right.png\"";
+            imageUrl = "\"/images/Avatar/" + avatar.getFolder() + "/right.png\"";
             highlightNodes(rightNodes, imageUrl);
 
             Node leftNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i);
-            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/left.png\"";
+            imageUrl = "\"/images/Avatar/" + avatar.getFolder() + "/left.png\"";
             highlightNodes(leftNodes, imageUrl);
         }
     }
