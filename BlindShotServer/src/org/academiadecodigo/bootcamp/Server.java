@@ -13,7 +13,6 @@ public class Server {
     private ServerSocket serverSocket;
     private Client[] clients;
     public static final int NUMBER_OF_CLIENTS = 3;
-    private GameState gameState;
     private int turn;
     private Thread[] threads;
     private LinkedList<Integer> deaths;
@@ -22,7 +21,6 @@ public class Server {
         try {
             serverSocket = new ServerSocket(6666);
             clients = new Client[NUMBER_OF_CLIENTS];
-            gameState = GameState.PREGAME;
             threads = new Thread[NUMBER_OF_CLIENTS];
             deaths = new LinkedList<>();
         } catch (IOException e) {
@@ -40,12 +38,7 @@ public class Server {
         }
 
         System.out.println("Pregame is over");
-        changeState(GameState.GAME);
         startGame();
-    }
-
-    private void changeState(GameState gameState) {
-        this.gameState = gameState;
     }
 
     private void startGame() throws IOException, InterruptedException {
@@ -118,13 +111,6 @@ public class Server {
                 turn++;
                 continue;
             }
-            /*if (turn == clients.length) {
-                turn = 0;
-            }
-            System.out.println("turn3: " + turn);
-            if (deaths.contains(turn)) {
-                turn++;
-            }*/
         }
     }
 

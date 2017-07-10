@@ -87,4 +87,8 @@ public final class Navigation {
         stage.setScene(scene);
         stage.show();
     }
+
+    public Stage getStage() {
+        return stage;
+    }
 }

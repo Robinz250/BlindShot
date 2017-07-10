@@ -1,7 +1,6 @@
 package org.academiadecodigo.bootcamp.controller;
 
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,8 +14,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.academiadecodigo.bootcamp.Navigation;
@@ -25,8 +22,6 @@ import org.academiadecodigo.bootcamp.service.GameCommunication;
 import org.academiadecodigo.bootcamp.service.GameService;
 
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 
@@ -61,9 +56,6 @@ public class GridController implements Initializable {
 
     private static Avatar avatar;
 
-    private BorderPane messagePane = null;
-
-    private String HitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
     private String floorPane = "-fx-background-color: transparent";
 
     private GameCommunication gameCommunication;
@@ -329,7 +321,7 @@ public class GridController implements Initializable {
      */
 
     public void showMessage(String message) {
-        messagePane = new BorderPane(new Text(message));
+        BorderPane messagePane = new BorderPane(new Text(message));
         messagePane.setPadding(new Insets(15));
         messagePane.setId("ModalMessage");
         grid.add(messagePane, 1, 0);
@@ -346,88 +338,13 @@ public class GridController implements Initializable {
         seqTransition.play();
     }
 
-    /*private class turnMessage implements Runnable {
-
-        @Override
-        public void run() {
-            String message;
-            while (true) {
-                try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getClientSocket().getInputStream()));
-                    message = in.readLine();
-                    System.out.println(message);
-                    String[] divide;
-                    divide = message.split(" \\| ");
-                    turn = Integer.parseInt(divide[0]);
-                    winOrLose = divide[7];
-
-                    Node element = getNodeByRowColumnIndex(Integer.parseInt(divide[4]), Integer.parseInt(divide[6]));
-                    element.setStyle(HitPane);
-                    paneAttack.add(element);
-
-                    Timeline timeline = new Timeline(new KeyFrame(
-                            Duration.millis(5000),
-                            ae -> clearAttacks()));
-                    timeline.play();
-
-                    winOrLose();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        private void winOrLose() {
-            if (winOrLose.equals("YOU LOOSE")) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Navigation.getInstance().loadScreen("gameOver");
-                        GameOverController gameOverController = (GameOverController) Navigation.getInstance().getControllers().get("gameOver");
-                        gameOverController.setWinnerLabelText("YOU LOOSE");
-                    }
-                });
-
-            } else if (winOrLose.equals("YOU WIN")) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Navigation.getInstance().loadScreen("gameOver");
-                        GameOverController gameOverController = (GameOverController) Navigation.getInstance().getControllers().get("gameOver");
-                        gameOverController.setWinnerLabelText("YOU WIN");
-                    }
-                });
-            }
-        }
-
-        public void clearAttacks() {
-            System.out.println("entrei");
-            for (Node node : paneAttack) {
-                node.setStyle(floorPane);
-            }
-
-            paneAttack.clear();
-        }
-    }*/
-
     public void changeDirection(Node element) {
 
-        int col = grid.getColumnIndex(playerImageView);
-        int row = grid.getRowIndex(playerImageView);
+        int col = GridPane.getColumnIndex(playerImageView);
+        int row = GridPane.getRowIndex(playerImageView);
 
-        int futureCol = grid.getColumnIndex(element);
-        int futureRow = grid.getRowIndex(element);
+        int futureCol = GridPane.getColumnIndex(element);
+        int futureRow = GridPane.getRowIndex(element);
 
         System.out.println(col + " " + row + " " + futureCol + " " + futureRow);
 
@@ -455,7 +372,8 @@ public class GridController implements Initializable {
 
     public void drawAttack(int col, int row) {
         Node element = getNodeByRowColumnIndex(col, row);
-        element.setStyle(HitPane);
+        String hitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
+        element.setStyle(hitPane);
 
         Timeline timeline = new Timeline(new KeyFrame(
                 Duration.millis(5000),
