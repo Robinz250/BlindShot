@@ -8,6 +8,10 @@ import java.net.UnknownHostException;
  */
 public class Main {
     public static void main(String[] args) {
+        /**
+         * 1st arg is the number of players to connect
+         */
+        Server.NUMBER_OF_CLIENTS = Integer.parseInt(args[0]);
         try {
             System.out.println(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
