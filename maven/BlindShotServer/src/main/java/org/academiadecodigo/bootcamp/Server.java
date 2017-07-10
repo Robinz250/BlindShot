@@ -12,7 +12,7 @@ public class Server {
 
     private ServerSocket serverSocket;
     private Client[] clients;
-    public static final int NUMBER_OF_CLIENTS = 3;
+    public static int NUMBER_OF_CLIENTS;
     private int turn;
     private Thread[] threads;
     private LinkedList<Integer> deaths;
