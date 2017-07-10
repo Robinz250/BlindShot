@@ -61,7 +61,7 @@ public class GridController implements Initializable {
 
     private BorderPane messagePane = null;
 
-    private String HitPane = "-fx-background-image: url('images/Hole.png');-fx-background-size: cover;-fx-background-position: center";
+    private String HitPane = "-fx-background-position:center;-fx-background-size:cover;-fx-background-image:url(\"images/attack.png\"); -fx-opacity: 1;";
     private String floorPane = "-fx-background-color: transparent";
 
 
@@ -263,49 +263,53 @@ public class GridController implements Initializable {
      * receive the number os cells length, the player row and player column and the color to paint panes
      */
     private void highLightPath(int pathLenght, int PlayerRow, int PlayerColumn) {
-            String imageUrl= null;
+        String imageUrl = null;
         for (int i = 1; i <= pathLenght; i++) {
 
             Node upNodes = getNodeByRowColumnIndex(PlayerRow - i, PlayerColumn);
-            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/up.png\"";
-            highlightNodes(upNodes,imageUrl);
+            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/up.png\"";
+            highlightNodes(upNodes, imageUrl);
 
             Node downNodes = getNodeByRowColumnIndex(PlayerRow + i, PlayerColumn);
-            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/down.png\"";
-            highlightNodes(downNodes,imageUrl);
+            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/down.png\"";
+            highlightNodes(downNodes, imageUrl);
 
             Node rightNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn + i);
-            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/right.png\"";
-            highlightNodes(rightNodes,imageUrl);
+            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/right.png\"";
+            highlightNodes(rightNodes, imageUrl);
 
             Node leftNodes = getNodeByRowColumnIndex(PlayerRow, PlayerColumn - i);
-            imageUrl = "\"images/Avatar/"+avatar.getFolder()+"/left.png\"";
-            highlightNodes(leftNodes,imageUrl);
+            imageUrl = "\"images/Avatar/" + avatar.getFolder() + "/left.png\"";
+            highlightNodes(leftNodes, imageUrl);
         }
     }
 
-    private void highlightNodes(Node node,String imageUrl) {
+    private void highlightNodes(Node node, String imageUrl) {
         String nodeBg;
 
         if (attackMode) {
-            nodeBg = "\"images/Avatar/bigOne/up.png\"";
+            nodeBg = HitPane;
         } else {
-            nodeBg = imageUrl;
+            nodeBg = "-fx-background-position:center;-fx-background-size:cover;-fx-background-image:url(" + imageUrl + "); -fx-opacity: 0.5;";
         }
 
-        if (node != null && !node.getStyle().contains("Hole")) {
-            node.setStyle("-fx-background-position:center;-fx-background-size:cover;-fx-background-image:url("+ nodeBg +"); -fx-opacity: 1;");
-            node.setDisable(false);
-            paneHighLight.add(node);
-            //fadeOut(node);
+        if (node != null) {
+            if (paneAttack.contains(node)) {
+                node.setDisable(false);
+            } else {
+                node.setStyle(nodeBg);
+                node.setDisable(false);
+                paneHighLight.add(node);
+            }
         }
+
 
     }
 
     private void fadeOut(Node node) {
-        FadeTransition nodeFade = new FadeTransition(Duration.millis(3000), node);
-        nodeFade.setFromValue(0);
-        nodeFade.setToValue(1);
+        FadeTransition nodeFade = new FadeTransition(Duration.millis(2000), node);
+        nodeFade.setFromValue(1);
+        nodeFade.setToValue(0);
         nodeFade.play();
     }
 
