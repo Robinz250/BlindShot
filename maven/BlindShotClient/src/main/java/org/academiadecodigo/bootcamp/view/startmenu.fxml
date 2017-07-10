@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<GridPane fx:id="menuPane" alignment="CENTER" prefHeight="600.0" prefWidth="860.0" styleClass="backgroundImage" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.academiadecodigo.bootcamp.controller.MenuController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <TextField fx:id="playerMessage" maxWidth="300.0" prefHeight="40.0" prefWidth="500.0" promptText="*insert ugly name here*" styleClass="inputName" translateX="278.0" translateY="170.0">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </TextField>
+      <Label fx:id="serverMessage" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="626.0" text="Oh! Hello there, mate!" translateY="120.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+         <font>
+            <Font size="26.0" />
+         </font>
+         <textFill>
+            <LinearGradient endX="1.0" endY="1.0">
+               <stops>
+                  <Stop color="#1a777c" />
+                  <Stop color="#faffff" offset="1.0" />
+               </stops>
+            </LinearGradient>
+         </textFill>
+      </Label>
+      <Button fx:id="playButton" mnemonicParsing="false" onAction="#playerMessage" prefHeight="40.0" prefWidth="156.0" text="Submit" textAlignment="CENTER" textFill="#257569" translateY="230.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+         <font>
+            <Font size="19.0" />
+         </font>
+      </Button>
+      <ImageView fx:id="logo" fitHeight="183.0" fitWidth="149.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" styleClass="logo" translateY="-210.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+         <image>
+            <Image url="@/images/logo.png" />
+         </image>
+      </ImageView>
+      <Hyperlink fx:id="instructionsLink" onAction="#goToInstructions" text="Instructions" translateX="670.0" translateY="263.0" underline="true">
+         <font>
+            <Font name="DejaVu Sans Mono Bold" size="21.0" />
+         </font></Hyperlink>
+      <Text fx:id="errorText" fill="RED" strokeType="OUTSIDE" strokeWidth="0.0" translateY="200.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+   </children>
+</GridPane>
